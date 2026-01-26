@@ -179,7 +179,7 @@ class HomeViewProAPITester:
         """Test getting user properties"""
         print("\n🔍 Testing Get Properties...")
         
-        success, data = self.make_request('GET', 'properties', expected_status=200)
+        success, data, _ = self.make_request('GET', 'properties', expected_status=200)
         
         if success and isinstance(data, list):
             self.log_result("Get properties list", True)
@@ -199,7 +199,7 @@ class HomeViewProAPITester:
             self.log_result("Get single property", False, "No test property ID available")
             return
             
-        success, data = self.make_request('GET', f'properties/{self.test_property_id}', expected_status=200)
+        success, data, _ = self.make_request('GET', f'properties/{self.test_property_id}', expected_status=200)
         
         if success and data.get('id') == self.test_property_id:
             self.log_result("Get single property", True)
@@ -225,7 +225,7 @@ class HomeViewProAPITester:
             "description": "Updated description with new features"
         }
         
-        success, data = self.make_request('PUT', f'properties/{self.test_property_id}', update_data, 200)
+        success, data, _ = self.make_request('PUT', f'properties/{self.test_property_id}', update_data, 200)
         
         if success and data.get('title') == update_data['title']:
             self.log_result("Update property", True)
@@ -247,7 +247,7 @@ class HomeViewProAPITester:
             "user_agent": "Mozilla/5.0 (Test Browser)"
         }
         
-        success, data = self.make_request('POST', 'visits', visit_data, 200)
+        success, data, _ = self.make_request('POST', 'visits', visit_data, 200)
         
         if success and data.get('property_id') == self.test_property_id:
             self.log_result("Record visit", True)
@@ -258,7 +258,7 @@ class HomeViewProAPITester:
         """Test analytics endpoints"""
         print("\n🔍 Testing Analytics...")
         
-        success, data = self.make_request('GET', 'analytics', expected_status=200)
+        success, data, _ = self.make_request('GET', 'analytics', expected_status=200)
         
         if success and 'total_views' in data and 'total_duration' in data:
             self.log_result("Get analytics", True)
@@ -278,7 +278,7 @@ class HomeViewProAPITester:
             self.log_result("Get property visits", False, "No test property ID available")
             return
             
-        success, data = self.make_request('GET', f'properties/{self.test_property_id}/visits', expected_status=200)
+        success, data, _ = self.make_request('GET', f'properties/{self.test_property_id}/visits', expected_status=200)
         
         if success and isinstance(data, list):
             self.log_result("Get property visits", True)
@@ -294,7 +294,7 @@ class HomeViewProAPITester:
             "password": "wrongpassword"
         }
         
-        success, data = self.make_request('POST', 'auth/login', invalid_login_data, 401)
+        success, data, _ = self.make_request('POST', 'auth/login', invalid_login_data, 401)
         self.log_result("Invalid login rejection", success)
 
     def test_unauthorized_access(self):
@@ -305,7 +305,7 @@ class HomeViewProAPITester:
         original_token = self.token
         self.token = None
         
-        success, data = self.make_request('GET', 'properties', expected_status=401)
+        success, data, _ = self.make_request('GET', 'properties', expected_status=401)
         self.log_result("Unauthorized access rejection", success)
         
         # Restore token
@@ -319,7 +319,7 @@ class HomeViewProAPITester:
             self.log_result("Delete property", False, "No test property ID available")
             return
             
-        success, data = self.make_request('DELETE', f'properties/{self.test_property_id}', expected_status=200)
+        success, data, _ = self.make_request('DELETE', f'properties/{self.test_property_id}', expected_status=200)
         
         if success and 'message' in data:
             self.log_result("Delete property", True)
