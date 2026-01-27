@@ -165,6 +165,7 @@ class HomeViewProAPITester:
             "district": "Kadikoy",
             "square_meters": 120.5,
             "room_count": "3+1",
+            "property_type": "single",
             "floor": 5,
             "total_floors": 10,
             "building_age": 3,
@@ -172,8 +173,23 @@ class HomeViewProAPITester:
             "facing_direction": "Güney",
             "price": 2500000.0,
             "currency": "TRY",
-            "panorama_image": sample_image,
-            "regular_images": [sample_image],
+            "view_type": "regular",
+            "rooms": [
+                {
+                    "id": "room-1",
+                    "name": "Salon",
+                    "room_type": "living_room",
+                    "position_x": 0,
+                    "position_y": 0,
+                    "floor": 0,
+                    "square_meters": 25.0,
+                    "facing_direction": "Güney",
+                    "photos": [sample_image],
+                    "panorama_photo": None,
+                    "connections": []
+                }
+            ],
+            "entry_room_id": "room-1",
             "pois": [
                 {
                     "name": "Test School",
@@ -185,7 +201,8 @@ class HomeViewProAPITester:
                     "type": "market", 
                     "distance": "200m"
                 }
-            ]
+            ],
+            "cover_image": sample_image
         }
         
         success, data, status_code = self.make_request('POST', 'properties', property_data, 200)
