@@ -7,7 +7,6 @@ import {
   BarChart3, 
   Building2, 
   ArrowRight,
-  Play,
   ChevronRight
 } from 'lucide-react';
 
@@ -53,6 +52,11 @@ export default function LandingPage() {
             </Link>
             
             <div className="flex items-center gap-4">
+              <Link to="/pricing">
+                <Button variant="ghost" className="text-primary hover:text-primary/80" data-testid="pricing-nav-btn">
+                  Fiyatlar
+                </Button>
+              </Link>
               <Link to="/login">
                 <Button variant="ghost" className="text-primary hover:text-primary/80" data-testid="login-nav-btn">
                   Giriş Yap
@@ -60,7 +64,7 @@ export default function LandingPage() {
               </Link>
               <Link to="/register">
                 <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6" data-testid="register-nav-btn">
-                  Ücretsiz Başla
+                  Üyelik Satın Al
                 </Button>
               </Link>
             </div>
@@ -97,16 +101,17 @@ export default function LandingPage() {
               </p>
               
               <div className="flex flex-wrap gap-4 animate-fade-in opacity-0 stagger-3">
-                <Link to="/register">
+                <Link to="/pricing">
                   <Button size="lg" className="bg-gold text-white hover:bg-gold-hover rounded-full px-8 h-14 text-base font-medium tracking-wide btn-primary" data-testid="hero-cta-btn">
-                    Hemen Başla
+                    Paketleri İncele
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
                 </Link>
-                <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 rounded-full px-8 h-14 text-base font-medium" data-testid="demo-btn">
-                  <Play className="w-5 h-5 mr-2" />
-                  Demo İzle
-                </Button>
+                <Link to="/register">
+                  <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 rounded-full px-8 h-14 text-base font-medium" data-testid="demo-btn">
+                    Üyelik Satın Al
+                  </Button>
+                </Link>
               </div>
             </div>
             
@@ -189,7 +194,7 @@ export default function LandingPage() {
           </p>
           <Link to="/register">
             <Button size="lg" className="bg-gold text-white hover:bg-gold-hover rounded-full px-10 h-14 text-base font-medium tracking-wide" data-testid="cta-register-btn">
-              Ücretsiz Hesap Oluştur
+              Üyelik Satın Al
               <ChevronRight className="w-5 h-5 ml-2" />
             </Button>
           </Link>
