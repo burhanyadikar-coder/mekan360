@@ -4,10 +4,18 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import PaymentPage from "./pages/PaymentPage";
 import DashboardPage from "./pages/DashboardPage";
 import PropertyFormPage from "./pages/PropertyFormPage";
 import PropertyDetailPage from "./pages/PropertyDetailPage";
+import PropertyViewPage from "./pages/PropertyViewPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
+import AdminLoginPage from "./pages/admin/AdminLoginPage";
+import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
+import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import AdminUserDetailPage from "./pages/admin/AdminUserDetailPage";
 import "./App.css";
 
 const ProtectedRoute = ({ children }) => {
@@ -46,20 +54,45 @@ const PublicRoute = ({ children }) => {
   return children;
 };
 
+const AdminProtectedRoute = ({ children }) => {
+  const adminToken = localStorage.getItem('adminToken');
+  
+  if (!adminToken) {
+    return <Navigate to="/admin/login" replace />;
+  }
+  
+  return children;
+};
+
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <div className="min-h-screen bg-background">
           <Routes>
+            {/* Public Routes */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
             <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+            <Route path="/payment" element={<PaymentPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            
+            {/* Property View (for end users) */}
+            <Route path="/view/:id" element={<PropertyViewPage />} />
+            
+            {/* Protected User Routes */}
             <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
             <Route path="/property/new" element={<ProtectedRoute><PropertyFormPage /></ProtectedRoute>} />
             <Route path="/property/edit/:id" element={<ProtectedRoute><PropertyFormPage /></ProtectedRoute>} />
-            <Route path="/property/:id" element={<PropertyDetailPage />} />
+            <Route path="/property/:id" element={<ProtectedRoute><PropertyDetailPage /></ProtectedRoute>} />
             <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
+            
+            {/* Admin Routes */}
+            <Route path="/admin/login" element={<AdminLoginPage />} />
+            <Route path="/admin" element={<AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute>} />
+            <Route path="/admin/users" element={<AdminProtectedRoute><AdminUsersPage /></AdminProtectedRoute>} />
+            <Route path="/admin/users/:id" element={<AdminProtectedRoute><AdminUserDetailPage /></AdminProtectedRoute>} />
           </Routes>
           <Toaster position="top-right" richColors />
         </div>

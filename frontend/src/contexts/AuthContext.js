@@ -43,12 +43,11 @@ export const AuthProvider = ({ children }) => {
     return userData;
   };
 
-  const register = async (email, password, companyName, phone) => {
-    const response = await axios.post(`${API_URL}/auth/register`, {
-      email,
-      password,
-      company_name: companyName,
-      phone
+  const completePayment = async (userId, amount, packageType) => {
+    const response = await axios.post(`${API_URL}/auth/complete-payment`, {
+      user_id: userId,
+      amount,
+      package: packageType
     });
     const { access_token, user: userData } = response.data;
     
@@ -60,6 +59,11 @@ export const AuthProvider = ({ children }) => {
     return userData;
   };
 
+  const register = async (formData) => {
+    const response = await axios.post(`${API_URL}/auth/register`, formData);
+    return response.data; // Returns user_id, amount, package for payment
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     delete axios.defaults.headers.common['Authorization'];
@@ -67,8 +71,23 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const refreshUser = async () => {
+    if (token) {
+      await fetchUser();
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, token }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      login, 
+      register, 
+      logout, 
+      token, 
+      completePayment,
+      refreshUser 
+    }}>
       {children}
     </AuthContext.Provider>
   );
