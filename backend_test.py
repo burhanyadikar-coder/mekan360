@@ -257,27 +257,64 @@ class HomeViewProAPITester:
         else:
             self.log_result("Update property", False, str(data))
 
-    def test_visit_tracking(self):
-        """Test visit tracking functionality"""
-        print("\n🔍 Testing Visit Tracking...")
+    def test_visitor_registration(self):
+        """Test visitor registration for property viewing"""
+        print("\n🔍 Testing Visitor Registration...")
         
         if not self.test_property_id:
-            self.log_result("Visit tracking", False, "No test property ID available")
+            self.log_result("Visitor registration", False, "No test property ID available")
+            return
+            
+        visitor_data = {
+            "property_id": self.test_property_id,
+            "first_name": "Test",
+            "last_name": "Visitor",
+            "phone": "05559876543"
+        }
+        
+        success, data, _ = self.make_request('POST', 'visitors/register', visitor_data, 200)
+        
+        if success and 'id' in data:
+            self.visitor_id = data['id']
+            self.log_result("Visitor registration", True)
+        else:
+            self.log_result("Visitor registration", False, str(data))
+
+    def test_visit_recording(self):
+        """Test visit recording with visitor ID"""
+        print("\n🔍 Testing Visit Recording...")
+        
+        if not hasattr(self, 'visitor_id') or not self.test_property_id:
+            self.log_result("Visit recording", False, "No visitor ID or property ID available")
             return
             
         visit_data = {
             "property_id": self.test_property_id,
-            "duration": 45,  # 45 seconds
-            "visitor_ip": "192.168.1.1",
-            "user_agent": "Mozilla/5.0 (Test Browser)"
+            "visitor_id": self.visitor_id,
+            "duration": 120,
+            "rooms_visited": ["room-1", "room-2"]
         }
         
         success, data, _ = self.make_request('POST', 'visits', visit_data, 200)
         
-        if success and data.get('property_id') == self.test_property_id:
-            self.log_result("Record visit", True)
+        if success and 'message' in data:
+            self.log_result("Visit recording", True)
         else:
-            self.log_result("Record visit", False, str(data))
+            self.log_result("Visit recording", False, str(data))
+
+    def test_unauthorized_access(self):
+        """Test accessing protected endpoints without token"""
+        print("\n🔍 Testing Unauthorized Access...")
+        
+        # Temporarily remove token
+        original_token = self.token
+        self.token = None
+        
+        success, data, _ = self.make_request('GET', 'properties', expected_status=401)
+        self.log_result("Unauthorized access rejection", success)
+        
+        # Restore token
+        self.token = original_token
 
     def test_analytics(self):
         """Test analytics endpoints"""
