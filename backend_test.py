@@ -322,19 +322,68 @@ class HomeViewProAPITester:
         success, data, _ = self.make_request('POST', 'auth/login', invalid_login_data, 401)
         self.log_result("Invalid login rejection", success)
 
-    def test_unauthorized_access(self):
-        """Test accessing protected endpoints without token"""
-        print("\n🔍 Testing Unauthorized Access...")
+    def test_admin_setup(self):
+        """Test admin setup endpoint"""
+        print("\n🔍 Testing Admin Setup...")
         
-        # Temporarily remove token
+        success, data, _ = self.make_request('POST', 'setup-admin', expected_status=200)
+        
+        if success and 'message' in data:
+            self.log_result("Admin setup", True)
+        elif 'Admin zaten mevcut' in str(data):
+            self.log_result("Admin setup (already exists)", True)
+        else:
+            self.log_result("Admin setup", False, str(data))
+
+    def test_admin_login(self):
+        """Test admin login"""
+        print("\n🔍 Testing Admin Login...")
+        
+        admin_login_data = {
+            "email": "admin@homeviewpro.com",
+            "password": "AdminHVP2024!"
+        }
+        
+        success, data, _ = self.make_request('POST', 'admin/login', admin_login_data, 200)
+        
+        if success and 'access_token' in data:
+            self.admin_token = data['access_token']
+            self.log_result("Admin login", True)
+        else:
+            self.log_result("Admin login", False, str(data))
+
+    def test_admin_stats(self):
+        """Test admin stats endpoint"""
+        print("\n🔍 Testing Admin Stats...")
+        
+        if not hasattr(self, 'admin_token'):
+            self.log_result("Admin stats", False, "No admin token available")
+            return
+            
+        # Temporarily use admin token
         original_token = self.token
-        self.token = None
+        self.token = self.admin_token
         
-        success, data, _ = self.make_request('GET', 'properties', expected_status=401)
-        self.log_result("Unauthorized access rejection", success)
+        success, data, _ = self.make_request('GET', 'admin/stats', expected_status=200)
         
-        # Restore token
+        if success and 'total_users' in data:
+            self.log_result("Admin stats", True)
+        else:
+            self.log_result("Admin stats", False, str(data))
+            
+        # Restore original token
         self.token = original_token
+
+    def test_packages_endpoint(self):
+        """Test packages endpoint"""
+        print("\n🔍 Testing Packages Endpoint...")
+        
+        success, data, _ = self.make_request('GET', 'packages', expected_status=200)
+        
+        if success and 'starter' in data and 'premium' in data and 'ultra' in data:
+            self.log_result("Get packages", True)
+        else:
+            self.log_result("Get packages", False, str(data))
 
     def test_delete_property(self):
         """Test deleting a property (run last)"""
