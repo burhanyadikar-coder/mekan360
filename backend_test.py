@@ -637,31 +637,53 @@ class HomeViewProAPITester:
 
     def run_all_tests(self):
         """Run all backend tests"""
-        print("🚀 Starting HomeView Pro Backend API Tests")
+        print("🚀 Starting mekan360 Backend API Tests")
         print(f"📍 Testing against: {self.base_url}")
         print("=" * 60)
         
         # Test sequence
         self.test_health_check()
         self.test_packages_endpoint()
+        
+        # Admin tests
         self.test_admin_setup()
         self.test_admin_login()
         self.test_admin_stats()
+        
+        # User registration and authentication
         self.test_user_registration()
         self.test_payment_completion()
         self.test_user_login()
         self.test_get_user_profile()
+        
+        # Property management
         self.test_create_property()
         self.test_get_properties()
         self.test_get_single_property()
         self.test_update_property()
+        
+        # Group management tests (NEW)
+        self.test_create_group()
+        self.test_get_groups()
+        self.test_get_single_group()
+        self.test_update_group()
+        self.test_add_property_to_group()
+        self.test_remove_property_from_group()
+        self.test_public_group_view()
+        
+        # Visitor and analytics
         self.test_visitor_registration()
         self.test_visit_recording()
         self.test_analytics()
         self.test_property_visits()
+        
+        # Security tests
         self.test_invalid_login()
         self.test_unauthorized_access()
-        self.test_delete_property()  # Run last
+        
+        # Cleanup tests (run last)
+        self.test_delete_group()
+        self.test_delete_property()
         
         # Print summary
         print("\n" + "=" * 60)
