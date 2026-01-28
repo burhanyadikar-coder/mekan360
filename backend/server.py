@@ -899,6 +899,129 @@ async def admin_get_stats(admin: dict = Depends(get_admin_user)):
         }
     }
 
+# ==================== GROUP ROUTES ====================
+
+@api_router.post("/groups", response_model=GroupResponse)
+async def create_group(group_data: GroupCreate, current_user: dict = Depends(get_current_user)):
+    """Create a new property group"""
+    group_id = str(uuid.uuid4())
+    now = datetime.now(timezone.utc).isoformat()
+    
+    group_doc = {
+        "id": group_id,
+        "user_id": current_user["id"],
+        "company_name": current_user["company_name"],
+        "name": group_data.name,
+        "description": group_data.description,
+        "property_ids": group_data.property_ids,
+        "created_at": now,
+        "updated_at": now,
+        "share_link": f"/group/{group_id}"
+    }
+    
+    await db.groups.insert_one(group_doc)
+    return GroupResponse(**{k: v for k, v in group_doc.items() if k != "_id"})
+
+@api_router.get("/groups", response_model=List[GroupResponse])
+async def get_user_groups(current_user: dict = Depends(get_current_user)):
+    """Get all groups for current user"""
+    groups = await db.groups.find(
+        {"user_id": current_user["id"]},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    
+    return [GroupResponse(**g) for g in groups]
+
+@api_router.get("/groups/{group_id}", response_model=GroupResponse)
+async def get_group(group_id: str, current_user: dict = Depends(get_current_user)):
+    """Get a specific group"""
+    group = await db.groups.find_one({"id": group_id, "user_id": current_user["id"]}, {"_id": 0})
+    if not group:
+        raise HTTPException(status_code=404, detail="Grup bulunamadı")
+    return GroupResponse(**group)
+
+@api_router.put("/groups/{group_id}", response_model=GroupResponse)
+async def update_group(group_id: str, group_data: GroupUpdate, current_user: dict = Depends(get_current_user)):
+    """Update a group"""
+    group = await db.groups.find_one({"id": group_id, "user_id": current_user["id"]})
+    if not group:
+        raise HTTPException(status_code=404, detail="Grup bulunamadı")
+    
+    update_data = {k: v for k, v in group_data.model_dump().items() if v is not None}
+    update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    await db.groups.update_one({"id": group_id}, {"$set": update_data})
+    
+    updated = await db.groups.find_one({"id": group_id}, {"_id": 0})
+    return GroupResponse(**updated)
+
+@api_router.delete("/groups/{group_id}")
+async def delete_group(group_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete a group"""
+    group = await db.groups.find_one({"id": group_id, "user_id": current_user["id"]})
+    if not group:
+        raise HTTPException(status_code=404, detail="Grup bulunamadı")
+    
+    await db.groups.delete_one({"id": group_id})
+    return {"message": "Grup başarıyla silindi"}
+
+@api_router.post("/groups/{group_id}/properties/{property_id}")
+async def add_property_to_group(group_id: str, property_id: str, current_user: dict = Depends(get_current_user)):
+    """Add a property to a group"""
+    group = await db.groups.find_one({"id": group_id, "user_id": current_user["id"]})
+    if not group:
+        raise HTTPException(status_code=404, detail="Grup bulunamadı")
+    
+    property_doc = await db.properties.find_one({"id": property_id, "user_id": current_user["id"]})
+    if not property_doc:
+        raise HTTPException(status_code=404, detail="Gayrimenkul bulunamadı")
+    
+    if property_id not in group.get("property_ids", []):
+        await db.groups.update_one(
+            {"id": group_id},
+            {
+                "$push": {"property_ids": property_id},
+                "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}
+            }
+        )
+    
+    return {"message": "Gayrimenkul gruba eklendi"}
+
+@api_router.delete("/groups/{group_id}/properties/{property_id}")
+async def remove_property_from_group(group_id: str, property_id: str, current_user: dict = Depends(get_current_user)):
+    """Remove a property from a group"""
+    group = await db.groups.find_one({"id": group_id, "user_id": current_user["id"]})
+    if not group:
+        raise HTTPException(status_code=404, detail="Grup bulunamadı")
+    
+    await db.groups.update_one(
+        {"id": group_id},
+        {
+            "$pull": {"property_ids": property_id},
+            "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}
+        }
+    )
+    
+    return {"message": "Gayrimenkul gruptan çıkarıldı"}
+
+@api_router.get("/public/groups/{group_id}")
+async def get_public_group(group_id: str):
+    """Public endpoint to view a shared group"""
+    group = await db.groups.find_one({"id": group_id}, {"_id": 0})
+    if not group:
+        raise HTTPException(status_code=404, detail="Grup bulunamadı")
+    
+    # Get properties in the group
+    properties = await db.properties.find(
+        {"id": {"$in": group.get("property_ids", [])}},
+        {"_id": 0}
+    ).to_list(100)
+    
+    return {
+        "group": GroupResponse(**group),
+        "properties": [PropertyResponse(**p) for p in properties]
+    }
+
 # ==================== SETUP ADMIN ====================
 
 @api_router.post("/setup-admin")
@@ -923,7 +1046,7 @@ async def setup_admin():
 
 @api_router.get("/")
 async def root():
-    return {"message": "HomeView Pro API", "status": "running", "version": "2.0"}
+    return {"message": "mekan360 API", "status": "running", "version": "2.0"}
 
 @api_router.get("/health")
 async def health():
