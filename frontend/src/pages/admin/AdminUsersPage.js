@@ -80,7 +80,7 @@ export default function AdminUsersPage() {
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
-              <Link to="/admin">
+              <Link to="/mekanadmin">
                 <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hover:bg-white/10">
                   <ArrowLeft className="w-5 h-5" />
                 </Button>
