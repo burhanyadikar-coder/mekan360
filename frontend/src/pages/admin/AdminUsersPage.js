@@ -152,7 +152,7 @@ export default function AdminUsersPage() {
                       </p>
                     </div>
                     
-                    <Link to={`/admin/users/${user.id}`}>
+                    <Link to={`/mekanadmin/users/${user.id}`}>
                       <Button variant="ghost" size="icon" className="text-white/50 hover:text-white hover:bg-white/10" data-testid={`view-user-${user.id}`}>
                         <ChevronRight className="w-5 h-5" />
                       </Button>
