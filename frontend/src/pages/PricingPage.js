@@ -253,7 +253,7 @@ export default function PricingPage() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-3">
               <Building2 className="w-6 h-6 text-primary" />
-              <span className="font-heading text-lg font-semibold text-primary">HomeView Pro</span>
+              <span className="font-heading text-lg font-semibold text-primary">mekan360</span>
             </div>
             <div className="flex items-center gap-6">
               <a 
