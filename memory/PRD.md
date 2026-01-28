@@ -1,10 +1,10 @@
-# HomeView Pro - Premium Daire Tanıtım Sistemi v2
+# mekan360 - Premium Daire Tanıtım Sistemi v2
 
 ## Problem Statement
 Emlakçılar ve inşaat firmaları için premium daire tanıtım sistemi. 3 farklı paket ile aylık abonelik modeli, interaktif kroki oluşturma, 360° sanal tur, ziyaretçi takibi ve admin paneli.
 
 ## User Personas
-1. **Yayıncı (Admin)**: Platform yöneticisi - kullanıcı ve ödeme yönetimi
+1. **Yayıncı (Admin)**: Platform yöneticisi - kullanıcı ve ödeme yönetimi (/mekanadmin)
 2. **Emlak Danışmanı / İnşaat Firması**: Gayrimenkul ekleyen ve yöneten kullanıcı
 3. **Son Kullanıcı (Müşteri)**: Gayrimenkulü sanal turla gezebilen potansiyel alıcı
 
