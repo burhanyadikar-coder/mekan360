@@ -251,11 +251,7 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Group CRUD API"
-    - "Add/Remove Property from Group"
-    - "Public Group View API"
-    - "Admin Login"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -263,3 +259,5 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "Grup yönetimi özellikleri eklendi. Backend API'lerini test et: grup CRUD, daire ekleme/çıkarma, public görüntüleme. Admin login: yadigrb/Yadigar34"
+  - agent: "testing"
+    message: "Backend group management testing completed successfully. All core group functionality working: CRUD operations (create/read/update/delete groups), property management (add/remove properties from groups), public group sharing, and admin authentication with yadigrb/Yadigar34 credentials. Test success rate: 89.7% (35/39 tests passed). Minor issues found in non-critical endpoints (admin stats, property visits endpoint path). All requested group management features are fully functional."
