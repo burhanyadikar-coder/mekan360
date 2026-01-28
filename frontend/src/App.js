@@ -91,10 +91,10 @@ function App() {
             <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
             
             {/* Admin Routes */}
-            <Route path="/admin/login" element={<AdminLoginPage />} />
-            <Route path="/admin" element={<AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute>} />
-            <Route path="/admin/users" element={<AdminProtectedRoute><AdminUsersPage /></AdminProtectedRoute>} />
-            <Route path="/admin/users/:id" element={<AdminProtectedRoute><AdminUserDetailPage /></AdminProtectedRoute>} />
+            <Route path="/mekanadmin/login" element={<AdminLoginPage />} />
+            <Route path="/mekanadmin" element={<AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute>} />
+            <Route path="/mekanadmin/users" element={<AdminProtectedRoute><AdminUsersPage /></AdminProtectedRoute>} />
+            <Route path="/mekanadmin/users/:id" element={<AdminProtectedRoute><AdminUserDetailPage /></AdminProtectedRoute>} />
           </Routes>
           <Toaster position="top-right" richColors />
         </div>
