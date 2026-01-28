@@ -908,6 +908,72 @@ async def admin_get_stats(admin: dict = Depends(get_admin_user)):
         }
     }
 
+@admin_router.post("/users")
+async def admin_create_user(data: AdminUserCreate, admin: dict = Depends(get_admin_user)):
+    """Admin creates a new user manually"""
+    existing = await db.users.find_one({"email": data.email})
+    if existing:
+        raise HTTPException(status_code=400, detail="Bu email zaten kayıtlı")
+    
+    if data.package not in PACKAGES:
+        raise HTTPException(status_code=400, detail="Geçersiz paket")
+    
+    user_id = str(uuid.uuid4())
+    now = datetime.now(timezone.utc)
+    subscription_end = now + timedelta(days=data.subscription_days)
+    
+    user_doc = {
+        "id": user_id,
+        "email": data.email,
+        "password": hash_password(data.password),
+        "first_name": data.first_name,
+        "last_name": data.last_name,
+        "company_name": data.company_name,
+        "phone": data.phone,
+        "package": data.package,
+        "auto_payment": False,
+        "subscription_status": data.subscription_status,
+        "subscription_end": subscription_end.isoformat() if data.subscription_status == "active" else None,
+        "property_count": 0,
+        "created_at": now.isoformat(),
+        "updated_at": now.isoformat()
+    }
+    
+    await db.users.insert_one(user_doc)
+    
+    # Create a payment record if subscription is active
+    if data.subscription_status == "active":
+        package_info = PACKAGES[data.package]
+        payment_doc = {
+            "id": str(uuid.uuid4()),
+            "user_id": user_id,
+            "amount": package_info["price"],
+            "package": data.package,
+            "status": "completed",
+            "payment_date": now.isoformat(),
+            "next_payment_date": subscription_end.isoformat(),
+            "note": "Manuel ekleme (Admin)"
+        }
+        await db.payments.insert_one(payment_doc)
+    
+    return {"message": "Kullanıcı başarıyla eklendi", "user_id": user_id}
+
+@admin_router.delete("/users/{user_id}")
+async def admin_delete_user(user_id: str, admin: dict = Depends(get_admin_user)):
+    """Admin deletes a user"""
+    user = await db.users.find_one({"id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
+    
+    # Delete user's properties, groups, visitors, visits
+    await db.properties.delete_many({"user_id": user_id})
+    await db.groups.delete_many({"user_id": user_id})
+    await db.visitors.delete_many({"user_id": user_id})
+    await db.payments.delete_many({"user_id": user_id})
+    await db.users.delete_one({"id": user_id})
+    
+    return {"message": "Kullanıcı ve tüm verileri silindi"}
+
 # ==================== GROUP ROUTES ====================
 
 @api_router.post("/groups", response_model=GroupResponse)
