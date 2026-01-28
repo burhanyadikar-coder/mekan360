@@ -250,6 +250,17 @@ class AdminUserUpdate(BaseModel):
     subscription_status: Optional[str] = None
     subscription_end: Optional[str] = None
 
+class AdminUserCreate(BaseModel):
+    email: EmailStr
+    password: str
+    first_name: str
+    last_name: str
+    company_name: str
+    phone: Optional[str] = None
+    package: str  # starter, premium, ultra
+    subscription_status: str = "active"  # active, pending, expired
+    subscription_days: int = 30  # How many days of subscription
+
 # Group Models
 class GroupCreate(BaseModel):
     name: str
