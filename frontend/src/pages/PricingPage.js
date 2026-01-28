@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
-import { Building2, Check, ArrowRight, Crown } from 'lucide-react';
+import { Building2, Check, ArrowRight, Crown, Camera, Video, Globe, Phone } from 'lucide-react';
 
 const PACKAGES = [
   {
