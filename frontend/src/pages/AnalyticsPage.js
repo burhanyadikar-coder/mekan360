@@ -324,7 +324,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Property-specific Analytics */}
-        <Card className="border-border/40">
+        <Card className="border-border/40 mb-8">
           <CardHeader>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <CardTitle className="flex items-center gap-2 font-heading text-lg">
@@ -353,29 +353,32 @@ export default function AnalyticsPage() {
               </div>
             ) : propertyVisits.length > 0 ? (
               <div className="space-y-3">
-                <div className="grid grid-cols-4 gap-4 text-xs uppercase tracking-wider text-muted-foreground font-semibold pb-2 border-b border-border">
+                <div className="grid grid-cols-5 gap-4 text-xs uppercase tracking-wider text-muted-foreground font-semibold pb-2 border-b border-border">
+                  <span>Ziyaretçi</span>
+                  <span>Telefon</span>
                   <span>Tarih</span>
                   <span>Süre</span>
-                  <span>Cihaz</span>
                   <span>Saat</span>
                 </div>
                 {propertyVisits.slice(0, 20).map((visit, index) => {
                   const visitDate = new Date(visit.visited_at);
-                  const isMobile = visit.user_agent?.toLowerCase().includes('mobile');
                   return (
                     <div 
-                      key={visit.id} 
-                      className="grid grid-cols-4 gap-4 py-3 border-b border-border/50 last:border-0"
+                      key={visit.id || index} 
+                      className="grid grid-cols-5 gap-4 py-3 border-b border-border/50 last:border-0"
                       data-testid={`visit-row-${index}`}
                     >
+                      <span className="text-foreground font-medium">
+                        {visit.visitor_name || 'Bilinmeyen'}
+                      </span>
+                      <span className="text-muted-foreground">
+                        {visit.visitor_phone || '-'}
+                      </span>
                       <span className="text-foreground">
                         {visitDate.toLocaleDateString('tr-TR')}
                       </span>
                       <span className="text-foreground font-medium">
                         {formatDuration(visit.duration)}
-                      </span>
-                      <span className="text-muted-foreground">
-                        {isMobile ? 'Mobil' : 'Masaüstü'}
                       </span>
                       <span className="text-muted-foreground">
                         {visitDate.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
@@ -387,6 +390,59 @@ export default function AnalyticsPage() {
             ) : (
               <div className="text-center py-12 text-muted-foreground">
                 Bu daire için henüz ziyaret kaydı yok.
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Recent Visitors */}
+        <Card className="border-border/40">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 font-heading text-lg">
+              <Eye className="w-5 h-5 text-gold" />
+              Son Ziyaretçiler
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {analytics?.recent_visitors?.length > 0 ? (
+              <div className="space-y-3">
+                <div className="grid grid-cols-5 gap-4 text-xs uppercase tracking-wider text-muted-foreground font-semibold pb-2 border-b border-border">
+                  <span>Ad Soyad</span>
+                  <span>Telefon</span>
+                  <span>Daire</span>
+                  <span>Ziyaret Sayısı</span>
+                  <span>Son Ziyaret</span>
+                </div>
+                {analytics.recent_visitors.map((visitor, index) => {
+                  const property = properties.find(p => p.id === visitor.property_id);
+                  const lastVisit = new Date(visitor.last_visit);
+                  return (
+                    <div 
+                      key={visitor.id} 
+                      className="grid grid-cols-5 gap-4 py-3 border-b border-border/50 last:border-0"
+                    >
+                      <span className="text-foreground font-medium">
+                        {visitor.first_name} {visitor.last_name}
+                      </span>
+                      <span className="text-muted-foreground">
+                        {visitor.phone}
+                      </span>
+                      <span className="text-foreground truncate">
+                        {property?.title || 'Bilinmeyen'}
+                      </span>
+                      <span className="text-foreground font-medium">
+                        {visitor.visit_count}
+                      </span>
+                      <span className="text-muted-foreground">
+                        {lastVisit.toLocaleDateString('tr-TR')} {lastVisit.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-12 text-muted-foreground">
+                Henüz ziyaretçi kaydı yok.
               </div>
             )}
           </CardContent>
