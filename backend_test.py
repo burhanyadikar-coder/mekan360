@@ -13,6 +13,7 @@ class HomeViewProAPITester:
         self.token = None
         self.user_id = None
         self.test_property_id = None
+        self.test_group_id = None
         self.tests_run = 0
         self.tests_passed = 0
         self.failed_tests = []
