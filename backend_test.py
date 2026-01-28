@@ -390,21 +390,21 @@ class HomeViewProAPITester:
             self.log_result("Admin setup", False, str(data))
 
     def test_admin_login(self):
-        """Test admin login"""
+        """Test admin login with mekan360 credentials"""
         print("\n🔍 Testing Admin Login...")
         
         admin_login_data = {
-            "email": "admin@homeviewpro.com",
-            "password": "AdminHVP2024!"
+            "email": "yadigrb",
+            "password": "Yadigar34"
         }
         
         success, data, _ = self.make_request('POST', 'admin/login', admin_login_data, 200)
         
         if success and 'access_token' in data:
             self.admin_token = data['access_token']
-            self.log_result("Admin login", True)
+            self.log_result("Admin login (mekan360)", True)
         else:
-            self.log_result("Admin login", False, str(data))
+            self.log_result("Admin login (mekan360)", False, str(data))
 
     def test_admin_stats(self):
         """Test admin stats endpoint"""
