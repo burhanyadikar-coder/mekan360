@@ -190,7 +190,7 @@ export default function LandingPage() {
             <span className="font-semibold text-gold">Dönüştürmeye</span> Hazır mısınız?
           </h2>
           <p className="text-lg text-white/70 mb-10 max-w-2xl mx-auto">
-            Binlerce emlakçı ve inşaat firması HomeView Pro ile satışlarını artırıyor.
+            Binlerce emlakçı ve inşaat firması mekan360 ile satışlarını artırıyor.
           </p>
           <Link to="/register">
             <Button size="lg" className="bg-gold text-white hover:bg-gold-hover rounded-full px-10 h-14 text-base font-medium tracking-wide" data-testid="cta-register-btn">
