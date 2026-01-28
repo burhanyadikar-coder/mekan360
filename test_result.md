@@ -113,51 +113,63 @@ user_problem_statement: |
 backend:
   - task: "Group CRUD API"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Group oluşturma, listeleme, güncelleme, silme API'leri eklendi"
+      - working: true
+        agent: "testing"
+        comment: "All group CRUD operations tested successfully: POST /api/groups (create), GET /api/groups (list), GET /api/groups/{id} (get single), PUT /api/groups/{id} (update), DELETE /api/groups/{id} (delete). All endpoints returning 200 OK with correct data structure."
 
   - task: "Add/Remove Property from Group"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Gruba daire ekleme/çıkarma endpoint'leri eklendi"
+      - working: true
+        agent: "testing"
+        comment: "Property group management tested successfully: POST /api/groups/{id}/properties/{property_id} (add property) and DELETE /api/groups/{id}/properties/{property_id} (remove property) both working correctly. Verification tests confirm properties are properly added/removed from groups."
 
   - task: "Public Group View API"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Public grup görüntüleme endpoint'i eklendi"
+      - working: true
+        agent: "testing"
+        comment: "Public group view API tested successfully: GET /api/public/groups/{id} works without authentication, returns correct group data and associated properties list. Public sharing functionality confirmed working."
 
   - task: "Admin Login"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Admin login kimlik bilgileri güncellendi (yadigrb/Yadigar34)"
+      - working: true
+        agent: "testing"
+        comment: "Admin login tested successfully: POST /api/admin/login with credentials yadigrb/Yadigar34 returns valid access token. Authentication working correctly for mekan360 admin panel."
 
 frontend:
   - task: "GroupsPage"
