@@ -695,6 +695,18 @@ export default function PropertyViewPage() {
                   style={{ filter: sunFilterStyle.filter }}
                 />
                 
+                {/* Sun light overlay effect for photos */}
+                {sunFilterStyle.isLit && (
+                  <div 
+                    className="absolute inset-0 pointer-events-none transition-opacity duration-500"
+                    style={{
+                      background: `radial-gradient(ellipse at ${sunTime[0] < 12 ? '80% 20%' : sunTime[0] > 16 ? '20% 30%' : '50% 10%'}, 
+                        rgba(255, 200, 100, ${0.08 + sunFilterStyle.intensity * 0.12}) 0%, 
+                        transparent 60%)`,
+                    }}
+                  />
+                )}
+                
                 {currentRoom.photos.length > 1 && (
                   <>
                     <button
