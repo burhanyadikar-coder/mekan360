@@ -668,11 +668,18 @@ async def create_property(property_data: PropertyCreate, current_user: dict = De
     property_id = str(uuid.uuid4())
     now = datetime.now(timezone.utc).isoformat()
     
+    # Compress images before saving
+    property_dict = property_data.model_dump()
+    if property_dict.get('rooms'):
+        property_dict['rooms'] = compress_room_photos([dict(r) for r in property_dict['rooms']])
+    if property_dict.get('cover_image'):
+        property_dict['cover_image'] = compress_base64_image(property_dict['cover_image'])
+    
     property_doc = {
         "id": property_id,
         "user_id": current_user["id"],
         "company_name": current_user["company_name"],
-        **property_data.model_dump(),
+        **property_dict,
         "view_count": 0,
         "total_view_duration": 0,
         "created_at": now,
