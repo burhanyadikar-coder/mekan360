@@ -269,7 +269,7 @@ export default function PricingPage() {
               </a>
             </div>
             <p className="text-muted-foreground text-sm">
-              © 2024 HomeView Pro. Tüm hakları saklıdır.
+              © 2024 mekan360. Tüm hakları saklıdır.
             </p>
           </div>
         </div>
