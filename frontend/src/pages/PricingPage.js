@@ -182,6 +182,82 @@ export default function PricingPage() {
         </div>
       </section>
 
+      {/* Additional Services Section */}
+      <section className="py-16 lg:py-24 bg-emerald-950">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="font-heading text-3xl font-semibold text-white mb-4">
+              Profesyonel Çekim Hizmetleri
+            </h2>
+            <p className="text-white/70 max-w-2xl mx-auto">
+              (İstanbul Anadolu Yakası)
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <Card className="bg-white/10 border-white/20 backdrop-blur-sm">
+              <CardContent className="p-8 text-center">
+                <div className="w-16 h-16 bg-gold/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Camera className="w-8 h-8 text-gold" />
+                </div>
+                <h3 className="font-heading text-xl font-semibold text-white mb-2">
+                  Profesyonel Fotoğraf Çekimi
+                </h3>
+                <p className="text-white/70 mb-4">
+                  Dairenizin profesyonel fotoğrafları
+                </p>
+                <div className="text-3xl font-bold text-gold mb-2">₺400</div>
+                <p className="text-white/50 text-sm">(İstanbul Anadolu Yakası)</p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/10 border-white/20 backdrop-blur-sm">
+              <CardContent className="p-8 text-center">
+                <div className="w-16 h-16 bg-gold/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Video className="w-8 h-8 text-gold" />
+                </div>
+                <h3 className="font-heading text-xl font-semibold text-white mb-2">
+                  Fotoğraf + Video Çekimi
+                </h3>
+                <p className="text-white/70 mb-4">
+                  Profesyonel fotoğraf ve tanıtım videosu
+                </p>
+                <div className="text-3xl font-bold text-gold mb-2">₺600</div>
+                <p className="text-white/50 text-sm">(İstanbul Anadolu Yakası)</p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/10 border-white/20 backdrop-blur-sm">
+              <CardContent className="p-8 text-center">
+                <div className="w-16 h-16 bg-gold/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Globe className="w-8 h-8 text-gold" />
+                </div>
+                <h3 className="font-heading text-xl font-semibold text-white mb-2">
+                  360° Çekim + Yükleme
+                </h3>
+                <p className="text-white/70 mb-4">
+                  360 derece çekim ve sisteme yükleme
+                </p>
+                <div className="text-3xl font-bold text-gold mb-2">₺800</div>
+                <p className="text-white/50 text-sm">(İstanbul Anadolu Yakası)</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center">
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 inline-block">
+              <p className="text-white/80 mb-4 text-lg">Bu hizmetler için lütfen iletişime geçin</p>
+              <a href="tel:05514780259" className="inline-flex items-center gap-3 text-gold hover:text-gold-hover transition-colors">
+                <div className="w-12 h-12 bg-gold/20 rounded-full flex items-center justify-center">
+                  <Phone className="w-6 h-6" />
+                </div>
+                <span className="text-2xl font-semibold">0551 478 02 59</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* FAQ Section */}
       <section className="py-16 lg:py-24 bg-muted">
         <div className="max-w-3xl mx-auto px-6">
