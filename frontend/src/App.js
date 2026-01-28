@@ -86,12 +86,17 @@ function App() {
             {/* Property View (for end users) */}
             <Route path="/view/:id" element={<PropertyViewPage />} />
             
+            {/* Group View (for end users - public) */}
+            <Route path="/group/:id" element={<GroupViewPage />} />
+            
             {/* Protected User Routes */}
             <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
             <Route path="/property/new" element={<ProtectedRoute><PropertyFormPage /></ProtectedRoute>} />
             <Route path="/property/edit/:id" element={<ProtectedRoute><PropertyFormPage /></ProtectedRoute>} />
             <Route path="/property/:id" element={<ProtectedRoute><PropertyDetailPage /></ProtectedRoute>} />
             <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
+            <Route path="/groups" element={<ProtectedRoute><GroupsPage /></ProtectedRoute>} />
+            <Route path="/groups/:id" element={<ProtectedRoute><GroupDetailPage /></ProtectedRoute>} />
             
             {/* Admin Routes */}
             <Route path="/mekanadmin/login" element={<AdminLoginPage />} />
