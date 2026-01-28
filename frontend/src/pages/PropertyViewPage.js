@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Card, CardContent } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
 import { Slider } from '../components/ui/slider';
 import {
   Dialog,
@@ -29,10 +30,14 @@ import {
   Hospital,
   CircleDot,
   Home,
-  User,
   Phone,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Eye,
+  X,
+  Map,
+  DoorOpen,
+  Maximize2
 } from 'lucide-react';
 import { Pannellum } from 'pannellum-react';
 import axios from 'axios';
@@ -50,12 +55,24 @@ const POI_ICONS = {
 };
 
 const POI_COLORS = {
-  school: 'bg-blue-100 text-blue-700',
-  market: 'bg-green-100 text-green-700',
-  transport: 'bg-yellow-100 text-yellow-700',
-  hospital: 'bg-red-100 text-red-700',
-  park: 'bg-emerald-100 text-emerald-700',
-  other: 'bg-gray-100 text-gray-700',
+  school: 'bg-blue-500',
+  market: 'bg-green-500',
+  transport: 'bg-yellow-500',
+  hospital: 'bg-red-500',
+  park: 'bg-emerald-500',
+  other: 'bg-gray-500',
+};
+
+const ROOM_NAMES = {
+  living_room: 'Salon',
+  bedroom: 'Yatak Odası',
+  kitchen: 'Mutfak',
+  bathroom: 'Banyo',
+  balcony: 'Balkon',
+  hallway: 'Koridor',
+  entrance: 'Giriş',
+  storage: 'Depo',
+  other: 'Diğer'
 };
 
 export default function PropertyViewPage() {
@@ -67,8 +84,14 @@ export default function PropertyViewPage() {
   const [visitorForm, setVisitorForm] = useState({ first_name: '', last_name: '', phone: '' });
   const [submitting, setSubmitting] = useState(false);
   
-  const [sunTime, setSunTime] = useState([12]);
+  // View states
+  const [viewMode, setViewMode] = useState('info'); // 'info', 'tour', 'floorplan'
   const [currentRoomIndex, setCurrentRoomIndex] = useState(0);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [sunTime, setSunTime] = useState([12]);
+  const [fullscreen, setFullscreen] = useState(false);
+  
   const viewStartTime = useRef(null);
   const visitedRooms = useRef([]);
 
@@ -114,7 +137,7 @@ export default function PropertyViewPage() {
       });
       setVisitor(response.data);
       setShowVisitorForm(false);
-      toast.success('Hoş geldiniz! Sanal tura başlayabilirsiniz.');
+      toast.success('Hoş geldiniz!');
     } catch (error) {
       toast.error('Bir hata oluştu');
     } finally {
@@ -177,160 +200,156 @@ export default function PropertyViewPage() {
   const formatTime = (hour) => `${hour.toString().padStart(2, '0')}:00`;
 
   const handleRoomChange = (index) => {
-    setCurrentRoomIndex(index);
-    const room = property.rooms[index];
-    if (room && !visitedRooms.current.includes(room.id)) {
-      visitedRooms.current.push(room.id);
-    }
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentRoomIndex(index);
+      setCurrentPhotoIndex(0);
+      const room = property.rooms[index];
+      if (room && !visitedRooms.current.includes(room.id)) {
+        visitedRooms.current.push(room.id);
+      }
+      setIsTransitioning(false);
+    }, 300);
+  };
+
+  const handlePhotoChange = (direction) => {
+    const room = property.rooms[currentRoomIndex];
+    if (!room?.photos?.length) return;
+    
+    setIsTransitioning(true);
+    setTimeout(() => {
+      if (direction === 'next') {
+        setCurrentPhotoIndex((prev) => (prev + 1) % room.photos.length);
+      } else {
+        setCurrentPhotoIndex((prev) => (prev - 1 + room.photos.length) % room.photos.length);
+      }
+      setIsTransitioning(false);
+    }, 300);
   };
 
   const handleShare = async () => {
+    const shareUrl = window.location.href;
     if (navigator.share) {
       try {
         await navigator.share({
           title: property?.title,
           text: `${property?.title} - ${property?.district}, ${property?.city}`,
-          url: window.location.href,
+          url: shareUrl,
         });
       } catch (error) {
-        navigator.clipboard.writeText(window.location.href);
+        navigator.clipboard.writeText(shareUrl);
         toast.success('Link kopyalandı');
       }
     } else {
-      navigator.clipboard.writeText(window.location.href);
+      navigator.clipboard.writeText(shareUrl);
       toast.success('Link kopyalandı');
     }
   };
 
+  const currentRoom = property?.rooms?.[currentRoomIndex];
+  const has360 = property?.view_type === '360' && currentRoom?.panorama_photo;
+  const hasPhotos = currentRoom?.photos?.length > 0;
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-pulse text-primary font-heading text-xl">Yükleniyor...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-950 to-emerald-900">
+        <div className="animate-pulse text-white font-heading text-xl">Yükleniyor...</div>
       </div>
     );
   }
 
   if (!property) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
-          <Home className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-          <h1 className="font-heading text-2xl text-foreground mb-2">Gayrimenkul Bulunamadı</h1>
-          <p className="text-muted-foreground mb-6">Bu gayrimenkul silinmiş veya mevcut değil.</p>
-          <Link to="/">
-            <Button className="rounded-full">Ana Sayfaya Dön</Button>
-          </Link>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-950 to-emerald-900">
+        <div className="text-center text-white">
+          <Home className="w-16 h-16 text-white/50 mx-auto mb-4" />
+          <h1 className="font-heading text-2xl mb-2">Gayrimenkul Bulunamadı</h1>
+          <p className="text-white/70">Bu gayrimenkul silinmiş veya mevcut değil.</p>
         </div>
       </div>
     );
   }
 
-  // Visitor Form Dialog
+  // Visitor Form
   if (showVisitorForm) {
     return (
-      <div className="min-h-screen bg-background">
-        {/* Header */}
-        <header className="bg-primary py-6">
-          <div className="max-w-4xl mx-auto px-6 text-center">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <Building2 className="w-8 h-8 text-gold" />
-              <span className="font-heading text-xl font-semibold text-white">mekan360</span>
-            </div>
-            <p className="text-white/70">{property.company_name}</p>
-          </div>
-        </header>
-
-        {/* Property Preview */}
-        <div className="max-w-4xl mx-auto px-6 py-8">
-          <Card className="border-border/40 overflow-hidden mb-8">
-            {property.cover_image ? (
-              <img src={property.cover_image} alt={property.title} className="w-full h-64 object-cover" />
-            ) : property.rooms?.[0]?.photos?.[0] ? (
-              <img src={property.rooms[0].photos[0]} alt={property.title} className="w-full h-64 object-cover" />
-            ) : (
-              <div className="w-full h-64 bg-muted flex items-center justify-center">
-                <Home className="w-16 h-16 text-muted-foreground" />
-              </div>
+      <div className="min-h-screen bg-gradient-to-br from-emerald-950 to-emerald-900 flex items-center justify-center p-4">
+        <div className="w-full max-w-lg">
+          {/* Property Preview Card */}
+          <Card className="bg-white/10 backdrop-blur border-white/20 overflow-hidden mb-6">
+            {(property.cover_image || property.rooms?.[0]?.photos?.[0]) && (
+              <img 
+                src={property.cover_image || property.rooms[0].photos[0]} 
+                alt={property.title} 
+                className="w-full h-48 object-cover"
+              />
             )}
             <CardContent className="p-6">
-              <h1 className="font-heading text-2xl font-semibold text-foreground mb-2">{property.title}</h1>
-              <p className="flex items-center text-muted-foreground mb-4">
-                <MapPin className="w-4 h-4 mr-1" />
+              <p className="text-white/60 text-sm mb-2">{property.company_name}</p>
+              <h1 className="font-heading text-2xl font-semibold text-white mb-2">{property.title}</h1>
+              <p className="text-white/70 flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
                 {property.district}, {property.city}
               </p>
-              <p className="font-heading text-3xl font-bold text-gold">
-                {formatPrice(property.price, property.currency)}
-              </p>
+              <div className="flex items-center gap-4 mt-4 text-white/60 text-sm">
+                <span>{property.room_count}</span>
+                <span>•</span>
+                <span>{property.square_meters} m²</span>
+                <span>•</span>
+                <span>Kat {property.floor}</span>
+              </div>
+              {property.view_type === '360' && (
+                <Badge className="mt-4 bg-amber-500/20 text-amber-400 border-0">
+                  360° Sanal Tur
+                </Badge>
+              )}
             </CardContent>
           </Card>
 
           {/* Visitor Form */}
-          <Card className="border-border/40">
-            <CardContent className="p-8">
-              <div className="text-center mb-6">
-                <h2 className="font-heading text-xl font-semibold text-foreground mb-2">
-                  Sanal Tura Başlamak İçin
-                </h2>
-                <p className="text-muted-foreground">
-                  Lütfen bilgilerinizi girin. Emlak danışmanımız sizinle iletişime geçebilir.
-                </p>
-              </div>
-
-              <form onSubmit={handleVisitorSubmit} className="space-y-4 max-w-md mx-auto">
+          <Card className="bg-white/10 backdrop-blur border-white/20">
+            <CardContent className="p-6">
+              <h2 className="font-heading text-xl text-white mb-2">Daireyi Görüntüle</h2>
+              <p className="text-white/60 text-sm mb-6">
+                Daireyi görüntülemek için lütfen bilgilerinizi girin
+              </p>
+              
+              <form onSubmit={handleVisitorSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="first_name">İsim *</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                      <Input
-                        id="first_name"
-                        placeholder="İsminiz"
-                        value={visitorForm.first_name}
-                        onChange={(e) => setVisitorForm(p => ({ ...p, first_name: e.target.value }))}
-                        className="pl-11 h-12"
-                        required
-                        data-testid="visitor-first-name"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="last_name">Soyisim *</Label>
+                  <div>
+                    <Label className="text-white/80">Adınız</Label>
                     <Input
-                      id="last_name"
-                      placeholder="Soyisminiz"
+                      value={visitorForm.first_name}
+                      onChange={(e) => setVisitorForm({...visitorForm, first_name: e.target.value})}
+                      className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                      placeholder="Ad"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-white/80">Soyadınız</Label>
+                    <Input
                       value={visitorForm.last_name}
-                      onChange={(e) => setVisitorForm(p => ({ ...p, last_name: e.target.value }))}
-                      className="h-12"
-                      required
-                      data-testid="visitor-last-name"
+                      onChange={(e) => setVisitorForm({...visitorForm, last_name: e.target.value})}
+                      className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                      placeholder="Soyad"
                     />
                   </div>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Telefon *</Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                    <Input
-                      id="phone"
-                      type="tel"
-                      placeholder="05XX XXX XX XX"
-                      value={visitorForm.phone}
-                      onChange={(e) => setVisitorForm(p => ({ ...p, phone: e.target.value }))}
-                      className="pl-11 h-12"
-                      required
-                      data-testid="visitor-phone"
-                    />
-                  </div>
+                <div>
+                  <Label className="text-white/80">Telefon</Label>
+                  <Input
+                    value={visitorForm.phone}
+                    onChange={(e) => setVisitorForm({...visitorForm, phone: e.target.value})}
+                    className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                    placeholder="05XX XXX XX XX"
+                  />
                 </div>
-
-                <Button
-                  type="submit"
+                <Button 
+                  type="submit" 
                   disabled={submitting}
-                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-12 rounded-full"
-                  data-testid="start-tour-btn"
+                  className="w-full bg-amber-500 hover:bg-amber-600 text-white h-12 rounded-full"
                 >
-                  {submitting ? 'İşleniyor...' : 'Sanal Tura Başla'}
+                  {submitting ? 'Yükleniyor...' : 'Daireyi Görüntüle'}
                 </Button>
               </form>
             </CardContent>
@@ -341,320 +360,436 @@ export default function PropertyViewPage() {
   }
 
   // Main Property View
-  const currentRoom = property.rooms?.[currentRoomIndex];
-  const is360 = property.view_type === '360';
-
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 glass border-b border-border">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
-              <Building2 className="w-7 h-7 text-primary" />
-              <div>
-                <span className="font-heading text-lg font-semibold text-primary block leading-tight">mekan360</span>
-                <span className="text-xs text-muted-foreground">{property.company_name}</span>
-              </div>
-            </div>
-            <Button variant="ghost" size="sm" onClick={handleShare} data-testid="share-btn">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-950 to-emerald-900">
+      {/* Info View */}
+      {viewMode === 'info' && (
+        <div className="min-h-screen">
+          {/* Header */}
+          <header className="p-4 flex items-center justify-between">
+            <div className="text-white/60 text-sm">{property.company_name}</div>
+            <Button variant="ghost" size="sm" onClick={handleShare} className="text-white/70 hover:text-white">
               <Share2 className="w-4 h-4 mr-2" />
               Paylaş
             </Button>
-          </div>
-        </div>
-      </header>
+          </header>
 
-      {/* Image/360 Viewer Section */}
-      <section className="relative">
-        {is360 && currentRoom?.panorama_photo ? (
-          <div className="panorama-container sun-filter" style={{ filter: getSunFilter() }}>
-            <Pannellum
-              width="100%"
-              height="100%"
-              image={currentRoom.panorama_photo}
-              pitch={0}
-              yaw={0}
-              hfov={110}
-              autoLoad
-              autoRotate={-2}
-              compass={true}
-              showZoomCtrl={true}
-              showFullscreenCtrl={true}
-            />
+          {/* Cover Image */}
+          <div className="relative h-64 md:h-80">
+            {(property.cover_image || property.rooms?.[0]?.photos?.[0]) ? (
+              <img 
+                src={property.cover_image || property.rooms[0].photos[0]} 
+                alt={property.title}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-white/10 flex items-center justify-center">
+                <Home className="w-16 h-16 text-white/30" />
+              </div>
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 to-transparent" />
             
-            {/* Room Info Overlay */}
-            {currentRoom && (
-              <div className="absolute top-4 left-4 bg-black/50 backdrop-blur-sm px-4 py-2 rounded-lg text-white">
-                <p className="font-medium">{currentRoom.name}</p>
-                {currentRoom.square_meters && (
-                  <p className="text-sm text-white/70">{currentRoom.square_meters} m²</p>
-                )}
+            {/* Price Badge */}
+            <div className="absolute bottom-4 right-4">
+              <div className="bg-amber-500 text-white px-4 py-2 rounded-full font-heading text-xl font-bold">
+                {formatPrice(property.price, property.currency)}
+              </div>
+            </div>
+          </div>
+
+          {/* Property Info */}
+          <div className="px-4 pb-32">
+            <h1 className="font-heading text-3xl font-semibold text-white mt-4 mb-2">
+              {property.title}
+            </h1>
+            
+            <p className="text-white/70 flex items-center gap-2 mb-6">
+              <MapPin className="w-4 h-4" />
+              {property.address}, {property.district}, {property.city}
+            </p>
+
+            {/* Quick Stats */}
+            <div className="grid grid-cols-4 gap-3 mb-8">
+              <div className="bg-white/10 rounded-xl p-4 text-center">
+                <Ruler className="w-5 h-5 text-amber-400 mx-auto mb-1" />
+                <p className="text-white font-semibold">{property.square_meters}</p>
+                <p className="text-white/50 text-xs">m²</p>
+              </div>
+              <div className="bg-white/10 rounded-xl p-4 text-center">
+                <DoorOpen className="w-5 h-5 text-amber-400 mx-auto mb-1" />
+                <p className="text-white font-semibold">{property.room_count}</p>
+                <p className="text-white/50 text-xs">Oda</p>
+              </div>
+              <div className="bg-white/10 rounded-xl p-4 text-center">
+                <Layers className="w-5 h-5 text-amber-400 mx-auto mb-1" />
+                <p className="text-white font-semibold">{property.floor}/{property.total_floors}</p>
+                <p className="text-white/50 text-xs">Kat</p>
+              </div>
+              <div className="bg-white/10 rounded-xl p-4 text-center">
+                <Calendar className="w-5 h-5 text-amber-400 mx-auto mb-1" />
+                <p className="text-white font-semibold">{property.building_age}</p>
+                <p className="text-white/50 text-xs">Yaş</p>
+              </div>
+            </div>
+
+            {/* Details */}
+            <div className="bg-white/10 rounded-xl p-4 mb-6">
+              <h3 className="text-white font-semibold mb-4">Detaylar</h3>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="flex items-center gap-3">
+                  <Compass className="w-4 h-4 text-amber-400" />
+                  <span className="text-white/70">Cephe:</span>
+                  <span className="text-white">{property.facing_direction}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Flame className="w-4 h-4 text-amber-400" />
+                  <span className="text-white/70">Isıtma:</span>
+                  <span className="text-white">{property.heating_type}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Building2 className="w-4 h-4 text-amber-400" />
+                  <span className="text-white/70">Tip:</span>
+                  <span className="text-white">
+                    {property.property_type === 'single' ? 'Normal' : 
+                     property.property_type === 'duplex' ? 'Dubleks' : 'Tripleks'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Description */}
+            {property.description && (
+              <div className="bg-white/10 rounded-xl p-4 mb-6">
+                <h3 className="text-white font-semibold mb-2">Açıklama</h3>
+                <p className="text-white/70 text-sm leading-relaxed">{property.description}</p>
+              </div>
+            )}
+
+            {/* POIs */}
+            {property.pois?.length > 0 && (
+              <div className="bg-white/10 rounded-xl p-4 mb-6">
+                <h3 className="text-white font-semibold mb-4">Yakın Çevre</h3>
+                <div className="space-y-3">
+                  {property.pois.map((poi, idx) => {
+                    const Icon = POI_ICONS[poi.type] || CircleDot;
+                    return (
+                      <div key={idx} className="flex items-center gap-3">
+                        <div className={`w-8 h-8 rounded-full ${POI_COLORS[poi.type]} flex items-center justify-center`}>
+                          <Icon className="w-4 h-4 text-white" />
+                        </div>
+                        <span className="text-white">{poi.name}</span>
+                        {poi.distance && (
+                          <span className="text-white/50 text-sm ml-auto">{poi.distance}</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>
-        ) : currentRoom?.photos?.length > 0 ? (
-          <div className="relative h-[60vh] bg-muted">
-            <img
-              src={currentRoom.photos[0]}
-              alt={currentRoom.name}
-              className="w-full h-full object-cover sun-filter"
-              style={{ filter: getSunFilter() }}
-            />
-            {currentRoom && (
-              <div className="absolute top-4 left-4 bg-black/50 backdrop-blur-sm px-4 py-2 rounded-lg text-white">
-                <p className="font-medium">{currentRoom.name}</p>
-                {currentRoom.square_meters && (
-                  <p className="text-sm text-white/70">{currentRoom.square_meters} m²</p>
-                )}
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="h-[40vh] bg-muted flex items-center justify-center">
-            <Home className="w-16 h-16 text-muted-foreground" />
-          </div>
-        )}
 
-        {/* Room Navigation */}
-        {property.rooms?.length > 1 && (
-          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-center gap-2">
-            <Button
-              variant="secondary"
-              size="icon"
-              onClick={() => handleRoomChange(Math.max(0, currentRoomIndex - 1))}
-              disabled={currentRoomIndex === 0}
-              className="rounded-full bg-black/50 text-white hover:bg-black/70"
-              data-testid="prev-room-btn"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </Button>
-            
-            <div className="bg-black/50 backdrop-blur-sm px-4 py-2 rounded-full">
-              <span className="text-white text-sm">
-                {currentRoomIndex + 1} / {property.rooms.length}
-              </span>
-            </div>
-            
-            <Button
-              variant="secondary"
-              size="icon"
-              onClick={() => handleRoomChange(Math.min(property.rooms.length - 1, currentRoomIndex + 1))}
-              disabled={currentRoomIndex === property.rooms.length - 1}
-              className="rounded-full bg-black/50 text-white hover:bg-black/70"
-              data-testid="next-room-btn"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </Button>
-          </div>
-        )}
-
-        {/* Sun Simulation */}
-        <div className="absolute bottom-0 left-0 right-0 glass-dark p-4">
-          <div className="max-w-2xl mx-auto">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2 text-white">
-                <Sun className="w-4 h-4 text-gold" />
-                <span className="text-sm">Güneş Simülasyonu</span>
-              </div>
-              <span className="text-white font-medium">{formatTime(sunTime[0])}</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <Moon className="w-4 h-4 text-white/60" />
-              <Slider value={sunTime} onValueChange={setSunTime} min={6} max={20} step={1} className="flex-1" />
-              <Sun className="w-4 h-4 text-gold" />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Room Thumbnails */}
-      {property.rooms?.length > 1 && (
-        <div className="bg-muted py-4 overflow-x-auto">
-          <div className="flex gap-3 px-6 max-w-7xl mx-auto">
-            {property.rooms.map((room, index) => (
-              <button
-                key={room.id}
-                onClick={() => handleRoomChange(index)}
-                className={`flex-shrink-0 w-24 h-16 rounded-lg overflow-hidden border-2 transition-all ${
-                  index === currentRoomIndex ? 'border-primary' : 'border-transparent opacity-70 hover:opacity-100'
-                }`}
-                data-testid={`room-thumb-${index}`}
+          {/* Fixed Bottom Actions */}
+          <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-emerald-950 via-emerald-950 to-transparent pt-12">
+            <div className="flex gap-3">
+              {property.rooms?.length > 0 && (
+                <Button 
+                  onClick={() => setViewMode('floorplan')}
+                  variant="outline"
+                  className="flex-1 h-14 rounded-full border-white/30 text-white hover:bg-white/10"
+                >
+                  <Map className="w-5 h-5 mr-2" />
+                  Kroki
+                </Button>
+              )}
+              <Button 
+                onClick={() => setViewMode('tour')}
+                className="flex-1 h-14 rounded-full bg-amber-500 hover:bg-amber-600 text-white"
               >
-                {room.photos?.[0] || room.panorama_photo ? (
-                  <img
-                    src={room.photos?.[0] || room.panorama_photo}
-                    alt={room.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-muted-foreground/20 flex items-center justify-center">
-                    <Home className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                )}
-              </button>
-            ))}
+                <Eye className="w-5 h-5 mr-2" />
+                Daireyi Gez
+              </Button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Property Info */}
-      <main className="max-w-7xl mx-auto px-6 lg:px-12 py-8 lg:py-12">
-        <div className="grid lg:grid-cols-12 gap-8 lg:gap-12">
-          <div className="lg:col-span-7 space-y-8">
-            {/* Title & Price */}
-            <div>
-              <div className="flex items-start justify-between gap-4 mb-4">
-                <div>
-                  <h1 className="font-heading text-2xl md:text-3xl font-semibold text-primary mb-2">
-                    {property.title}
-                  </h1>
-                  <p className="flex items-center text-muted-foreground">
-                    <MapPin className="w-4 h-4 mr-1" />
-                    {property.address}, {property.district}, {property.city}
-                  </p>
-                </div>
-                <p className="font-heading text-2xl md:text-3xl font-semibold text-gold">
-                  {formatPrice(property.price, property.currency)}
-                </p>
+      {/* Floor Plan View */}
+      {viewMode === 'floorplan' && (
+        <div className="min-h-screen p-4">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <Button 
+              variant="ghost" 
+              onClick={() => setViewMode('info')}
+              className="text-white/70 hover:text-white"
+            >
+              <ChevronLeft className="w-5 h-5 mr-1" />
+              Geri
+            </Button>
+            <h2 className="text-white font-heading text-xl">Daire Krokisi</h2>
+            <div className="w-20" />
+          </div>
+
+          {/* Floor Plan Grid */}
+          <div className="bg-white/10 rounded-2xl p-6 mb-6">
+            <div className="relative" style={{ minHeight: '400px' }}>
+              {/* Rooms as interactive cards */}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {property.rooms?.map((room, idx) => (
+                  <button
+                    key={room.id}
+                    onClick={() => {
+                      setCurrentRoomIndex(idx);
+                      setViewMode('tour');
+                    }}
+                    className={`p-4 rounded-xl text-left transition-all hover:scale-105 ${
+                      room.id === property.entry_room_id 
+                        ? 'bg-amber-500/30 border-2 border-amber-500' 
+                        : 'bg-white/10 border border-white/20 hover:border-amber-500/50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <DoorOpen className="w-4 h-4 text-amber-400" />
+                      <span className="text-white font-medium text-sm">
+                        {room.name || ROOM_NAMES[room.room_type] || room.room_type}
+                      </span>
+                    </div>
+                    {room.square_meters && (
+                      <p className="text-white/50 text-xs">{room.square_meters} m²</p>
+                    )}
+                    {room.id === property.entry_room_id && (
+                      <Badge className="mt-2 bg-amber-500 text-white text-xs">Giriş</Badge>
+                    )}
+                    {room.photos?.length > 0 && (
+                      <p className="text-white/40 text-xs mt-1">{room.photos.length} fotoğraf</p>
+                    )}
+                    {room.panorama_photo && (
+                      <Badge className="mt-1 bg-blue-500/30 text-blue-300 text-xs border-0">360°</Badge>
+                    )}
+                  </button>
+                ))}
               </div>
-              {property.description && (
-                <p className="text-muted-foreground leading-relaxed">{property.description}</p>
-              )}
-            </div>
-
-            {/* Property Features */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <Card className="border-border/40">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Ruler className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase">Alan</p>
-                    <p className="font-heading font-medium">{property.square_meters} m²</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="border-border/40">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Home className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase">Oda</p>
-                    <p className="font-heading font-medium">{property.room_count}</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="border-border/40">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Layers className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase">Kat</p>
-                    <p className="font-heading font-medium">{property.floor}/{property.total_floors}</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="border-border/40">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center">
-                    <Compass className="w-5 h-5 text-gold" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase">Cephe</p>
-                    <p className="font-heading font-medium">{property.facing_direction}</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="border-border/40">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center">
-                    <Flame className="w-5 h-5 text-gold" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase">Isıtma</p>
-                    <p className="font-heading font-medium text-sm">{property.heating_type}</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="border-border/40">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center">
-                    <Calendar className="w-5 h-5 text-gold" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase">Bina Yaşı</p>
-                    <p className="font-heading font-medium">{property.building_age} yıl</p>
-                  </div>
-                </CardContent>
-              </Card>
             </div>
           </div>
 
-          {/* POIs */}
-          <div className="lg:col-span-5 space-y-6">
-            {property.pois?.length > 0 && (
-              <Card className="border-border/40">
-                <CardContent className="p-6">
-                  <h3 className="font-heading text-lg font-semibold text-primary mb-4 flex items-center gap-2">
-                    <MapPin className="w-5 h-5" />
-                    Yakın Çevre
-                  </h3>
-                  <div className="space-y-3">
-                    {property.pois.map((poi, index) => {
-                      const IconComponent = POI_ICONS[poi.type] || CircleDot;
-                      const colorClass = POI_COLORS[poi.type] || POI_COLORS.other;
-                      return (
-                        <div key={index} className="flex items-center justify-between py-3 border-b border-border last:border-0">
-                          <div className="flex items-center gap-3">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${colorClass}`}>
-                              <IconComponent className="w-5 h-5" />
-                            </div>
-                            <span className="font-medium">{poi.name}</span>
-                          </div>
-                          <span className="text-sm text-muted-foreground bg-muted px-3 py-1 rounded-full">
-                            {poi.distance}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
+          {/* Legend */}
+          <div className="flex items-center justify-center gap-6 text-sm text-white/60">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-amber-500/30 border border-amber-500" />
+              <span>Giriş Noktası</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-white/10 border border-white/20" />
+              <span>Oda</span>
+            </div>
+          </div>
+
+          {/* Start Tour Button */}
+          <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-emerald-950 via-emerald-950 to-transparent pt-12">
+            <Button 
+              onClick={() => setViewMode('tour')}
+              className="w-full h-14 rounded-full bg-amber-500 hover:bg-amber-600 text-white"
+            >
+              <Eye className="w-5 h-5 mr-2" />
+              Tura Başla
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Tour View */}
+      {viewMode === 'tour' && (
+        <div className={`min-h-screen ${fullscreen ? 'fixed inset-0 z-50' : ''}`}>
+          {/* Header */}
+          {!fullscreen && (
+            <div className="flex items-center justify-between p-4">
+              <Button 
+                variant="ghost" 
+                onClick={() => setViewMode('info')}
+                className="text-white/70 hover:text-white"
+              >
+                <ChevronLeft className="w-5 h-5 mr-1" />
+                Geri
+              </Button>
+              <h2 className="text-white font-heading text-lg">
+                {currentRoom?.name || ROOM_NAMES[currentRoom?.room_type] || 'Oda'}
+              </h2>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => setFullscreen(true)}
+                className="text-white/70 hover:text-white"
+              >
+                <Maximize2 className="w-5 h-5" />
+              </Button>
+            </div>
+          )}
+
+          {/* Fullscreen Close Button */}
+          {fullscreen && (
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => setFullscreen(false)}
+              className="absolute top-4 right-4 z-50 text-white bg-black/50 hover:bg-black/70 rounded-full"
+            >
+              <X className="w-5 h-5" />
+            </Button>
+          )}
+
+          {/* Photo/Panorama View */}
+          <div className={`relative ${fullscreen ? 'h-screen' : 'h-[60vh]'}`}>
+            {has360 ? (
+              // 360 Panorama
+              <div className="w-full h-full" style={{ filter: getSunFilter() }}>
+                <Pannellum
+                  width="100%"
+                  height="100%"
+                  image={currentRoom.panorama_photo}
+                  pitch={0}
+                  yaw={0}
+                  hfov={110}
+                  autoLoad
+                  showZoomCtrl={false}
+                  showFullscreenCtrl={false}
+                  mouseZoom={true}
+                  compass={true}
+                />
+              </div>
+            ) : hasPhotos ? (
+              // Regular Photos with Transition
+              <div className="relative w-full h-full overflow-hidden">
+                <img
+                  src={currentRoom.photos[currentPhotoIndex]}
+                  alt={`${currentRoom.name} - ${currentPhotoIndex + 1}`}
+                  className={`w-full h-full object-contain bg-black transition-all duration-300 ${
+                    isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+                  }`}
+                  style={{ filter: getSunFilter() }}
+                />
+                
+                {/* Photo Navigation */}
+                {currentRoom.photos.length > 1 && (
+                  <>
+                    <button
+                      onClick={() => handlePhotoChange('prev')}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
+                    >
+                      <ChevronLeft className="w-6 h-6" />
+                    </button>
+                    <button
+                      onClick={() => handlePhotoChange('next')}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
+                    >
+                      <ChevronRight className="w-6 h-6" />
+                    </button>
+                    
+                    {/* Photo Indicators */}
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                      {currentRoom.photos.map((_, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            setIsTransitioning(true);
+                            setTimeout(() => {
+                              setCurrentPhotoIndex(idx);
+                              setIsTransitioning(false);
+                            }, 300);
+                          }}
+                          className={`w-2 h-2 rounded-full transition-all ${
+                            idx === currentPhotoIndex ? 'bg-white w-6' : 'bg-white/50'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : (
+              <div className="w-full h-full bg-white/10 flex items-center justify-center">
+                <div className="text-center text-white/50">
+                  <Home className="w-16 h-16 mx-auto mb-4" />
+                  <p>Bu oda için fotoğraf yok</p>
+                </div>
+              </div>
             )}
 
-            <Card className="border-border/40 bg-primary text-primary-foreground">
-              <CardContent className="p-6 text-center">
-                <h3 className="font-heading text-xl font-semibold mb-2">İletişime Geçin</h3>
-                <p className="text-primary-foreground/80 text-sm mb-4">
-                  Bu gayrimenkul hakkında daha fazla bilgi almak için emlak danışmanımızla iletişime geçin.
-                </p>
-                <Button onClick={handleShare} className="bg-gold text-white hover:bg-gold-hover rounded-full w-full">
-                  <Share2 className="w-4 h-4 mr-2" />
-                  İlanı Paylaş
-                </Button>
-              </CardContent>
-            </Card>
+            {/* 360 Badge */}
+            {has360 && (
+              <Badge className="absolute top-4 left-4 bg-blue-500 text-white">
+                360° - Sürükleyerek Gez
+              </Badge>
+            )}
           </div>
-        </div>
-      </main>
 
-      {/* Footer */}
-      <footer className="py-8 bg-muted border-t border-border">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <p className="text-muted-foreground text-sm">
-            Bu ilan <span className="font-medium text-foreground">mekan360</span> ile oluşturulmuştur.
-          </p>
+          {/* Sun Simulation */}
+          {!fullscreen && (
+            <div className="px-4 py-4 bg-black/30">
+              <div className="flex items-center gap-4">
+                <Sun className="w-5 h-5 text-amber-400" />
+                <div className="flex-1">
+                  <Slider
+                    value={sunTime}
+                    onValueChange={setSunTime}
+                    min={6}
+                    max={20}
+                    step={1}
+                    className="w-full"
+                  />
+                </div>
+                <span className="text-white/70 text-sm w-12">{formatTime(sunTime[0])}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Room Navigation */}
+          {!fullscreen && property.rooms?.length > 1 && (
+            <div className="px-4 py-4">
+              <p className="text-white/50 text-sm mb-3">Diğer Odalar</p>
+              <div className="flex gap-2 overflow-x-auto pb-2">
+                {property.rooms.map((room, idx) => (
+                  <button
+                    key={room.id}
+                    onClick={() => handleRoomChange(idx)}
+                    className={`flex-shrink-0 px-4 py-2 rounded-full text-sm transition-all ${
+                      idx === currentRoomIndex
+                        ? 'bg-amber-500 text-white'
+                        : 'bg-white/10 text-white/70 hover:bg-white/20'
+                    }`}
+                  >
+                    {room.name || ROOM_NAMES[room.room_type] || room.room_type}
+                    {room.panorama_photo && <span className="ml-1">🔄</span>}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Actions */}
+          {!fullscreen && (
+            <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-emerald-950 via-emerald-950 to-transparent pt-12">
+              <div className="flex gap-3">
+                <Button 
+                  onClick={() => setViewMode('floorplan')}
+                  variant="outline"
+                  className="flex-1 h-12 rounded-full border-white/30 text-white hover:bg-white/10"
+                >
+                  <Map className="w-5 h-5 mr-2" />
+                  Kroki
+                </Button>
+                <Button 
+                  onClick={() => setViewMode('info')}
+                  variant="outline"
+                  className="flex-1 h-12 rounded-full border-white/30 text-white hover:bg-white/10"
+                >
+                  Daire Bilgileri
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
-      </footer>
+      )}
     </div>
   );
 }
