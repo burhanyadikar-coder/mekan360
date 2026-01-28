@@ -52,13 +52,13 @@ export default function AdminLoginPage() {
           <CardContent className="p-6">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-white/80">E-posta</Label>
+                <Label htmlFor="email" className="text-white/80">Kullanıcı Adı</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
                   <Input
                     id="email"
-                    type="email"
-                    placeholder="admin@homeviewpro.com"
+                    type="text"
+                    placeholder="Kullanıcı adınızı girin"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-11 h-12 bg-white/10 border-white/20 text-white placeholder:text-white/40"
