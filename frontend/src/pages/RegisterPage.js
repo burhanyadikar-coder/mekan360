@@ -94,6 +94,11 @@ export default function RegisterPage() {
       toast.error('Lütfen e-posta girin');
       return false;
     }
+    // Sadece Gmail kabul et
+    if (!formData.email.toLowerCase().endsWith('@gmail.com')) {
+      toast.error('Sadece Gmail hesabı ile kayıt olabilirsiniz');
+      return false;
+    }
     if (!formData.phone) {
       toast.error('Lütfen telefon numarası girin');
       return false;
