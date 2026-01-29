@@ -228,7 +228,7 @@ ADMIN_SECRET = os.environ.get('ADMIN_SECRET', 'admin-secret-2024')
 # Resend Email (optional)
 RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
 SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'onboarding@resend.dev')
-FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://realty-groups.preview.emergentagent.com')
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://virtual-space-api.preview.emergentagent.com')
 
 app = FastAPI(title="HomeView Pro API")
 api_router = APIRouter(prefix="/api")
