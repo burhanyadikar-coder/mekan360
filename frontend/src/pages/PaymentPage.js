@@ -198,6 +198,14 @@ export default function PaymentPage() {
             <p className="text-xs text-center text-muted-foreground mt-4">
               Ödemeniz SSL ile güvence altındadır. Kart bilgileriniz saklanmaz.
             </p>
+
+            {/* Sözleşmeler */}
+            <div className="mt-6 p-4 bg-muted/50 rounded-lg text-xs text-muted-foreground space-y-2">
+              <p className="font-medium text-foreground">Önemli Bilgiler:</p>
+              <p>• Ödeme yaparak <a href="#" className="text-primary underline">Kullanıcı Sözleşmesi</a> ve <a href="#" className="text-primary underline">KVKK Aydınlatma Metni</a>'ni kabul etmiş sayılırsınız.</p>
+              <p>• Dijital hizmet niteliğinde olduğundan, satın alınan abonelikler için <strong>iade yapılmamaktadır</strong>.</p>
+              <p>• Aboneliğiniz aylık olarak yenilenir. İstediğiniz zaman iptal edebilirsiniz.</p>
+            </div>
           </CardContent>
         </Card>
       </div>
