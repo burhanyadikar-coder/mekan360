@@ -16,11 +16,139 @@ import bcrypt
 import secrets
 import base64
 from io import BytesIO
+import httpx
+import hashlib
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# Image compression helper
+# Bunny CDN Configuration
+BUNNY_STORAGE_ZONE = os.environ.get('BUNNY_STORAGE_ZONE', '')
+BUNNY_API_KEY = os.environ.get('BUNNY_API_KEY', '')
+BUNNY_CDN_HOSTNAME = os.environ.get('BUNNY_CDN_HOSTNAME', '')
+BUNNY_STORAGE_REGION = os.environ.get('BUNNY_STORAGE_REGION', 'storage.bunnycdn.com')
+BUNNY_ENABLED = bool(BUNNY_STORAGE_ZONE and BUNNY_API_KEY)
+
+# Bunny CDN Upload Helper
+async def upload_to_bunny(file_content: bytes, file_path: str, content_type: str = "image/jpeg") -> Optional[str]:
+    """Upload file to Bunny CDN Storage and return CDN URL"""
+    if not BUNNY_ENABLED:
+        return None
+    
+    try:
+        url = f"https://{BUNNY_STORAGE_REGION}/{BUNNY_STORAGE_ZONE}/{file_path}"
+        checksum = hashlib.sha256(file_content).hexdigest().upper()
+        
+        headers = {
+            "AccessKey": BUNNY_API_KEY,
+            "Content-Type": content_type,
+            "Checksum": checksum
+        }
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.put(url, content=file_content, headers=headers, timeout=60.0)
+        
+        if response.status_code == 201:
+            cdn_url = f"https://{BUNNY_CDN_HOSTNAME}/{file_path}"
+            logging.info(f"Uploaded to Bunny CDN: {cdn_url}")
+            return cdn_url
+        else:
+            logging.error(f"Bunny upload failed: {response.status_code} - {response.text}")
+            return None
+    except Exception as e:
+        logging.error(f"Bunny upload error: {e}")
+        return None
+
+async def delete_from_bunny(file_path: str) -> bool:
+    """Delete file from Bunny CDN Storage"""
+    if not BUNNY_ENABLED:
+        return False
+    
+    try:
+        url = f"https://{BUNNY_STORAGE_REGION}/{BUNNY_STORAGE_ZONE}/{file_path}"
+        headers = {"AccessKey": BUNNY_API_KEY}
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.delete(url, headers=headers, timeout=30.0)
+        
+        return response.status_code in [200, 204]
+    except Exception as e:
+        logging.error(f"Bunny delete error: {e}")
+        return False
+
+def base64_to_bytes(base64_string: str) -> tuple:
+    """Convert base64 string to bytes and return (bytes, content_type)"""
+    if ',' in base64_string:
+        header, data = base64_string.split(',', 1)
+        # Extract content type from header like "data:image/jpeg;base64"
+        content_type = header.split(':')[1].split(';')[0] if ':' in header else 'image/jpeg'
+    else:
+        data = base64_string
+        content_type = 'image/jpeg'
+    
+    return base64.b64decode(data), content_type
+
+async def upload_base64_to_bunny(base64_string: str, folder: str, filename: str = None) -> Optional[str]:
+    """Upload base64 image to Bunny CDN"""
+    if not BUNNY_ENABLED or not base64_string:
+        return None
+    
+    try:
+        file_content, content_type = base64_to_bytes(base64_string)
+        
+        # Generate filename if not provided
+        if not filename:
+            ext = 'jpg' if 'jpeg' in content_type else content_type.split('/')[-1]
+            filename = f"{uuid.uuid4()}.{ext}"
+        
+        file_path = f"{folder}/{filename}"
+        return await upload_to_bunny(file_content, file_path, content_type)
+    except Exception as e:
+        logging.error(f"Base64 to Bunny upload error: {e}")
+        return None
+
+async def process_room_photos_for_bunny(rooms: List[Dict], property_id: str) -> List[Dict]:
+    """Process room photos - upload to Bunny CDN and replace base64 with URLs"""
+    if not BUNNY_ENABLED:
+        return rooms
+    
+    processed_rooms = []
+    for room in rooms:
+        room_copy = dict(room)
+        room_id = room.get('id', str(uuid.uuid4()))
+        
+        # Process regular photos
+        if room_copy.get('photos'):
+            new_photos = []
+            for i, photo in enumerate(room_copy['photos']):
+                if photo and photo.startswith('data:'):
+                    # It's base64, upload to Bunny
+                    cdn_url = await upload_base64_to_bunny(
+                        photo, 
+                        f"properties/{property_id}/rooms/{room_id}",
+                        f"photo_{i}.jpg"
+                    )
+                    new_photos.append(cdn_url if cdn_url else photo)
+                else:
+                    # Already a URL or empty
+                    new_photos.append(photo)
+            room_copy['photos'] = new_photos
+        
+        # Process panorama photo
+        if room_copy.get('panorama_photo') and room_copy['panorama_photo'].startswith('data:'):
+            cdn_url = await upload_base64_to_bunny(
+                room_copy['panorama_photo'],
+                f"properties/{property_id}/rooms/{room_id}",
+                "panorama.jpg"
+            )
+            if cdn_url:
+                room_copy['panorama_photo'] = cdn_url
+        
+        processed_rooms.append(room_copy)
+    
+    return processed_rooms
+
+# Legacy compression helper (fallback when Bunny is not enabled)
 def compress_base64_image(base64_string: str, max_size_kb: int = 500) -> str:
     """Compress base64 image to reduce size"""
     try:
