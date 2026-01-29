@@ -651,6 +651,38 @@ export default function PropertyViewPage() {
               </div>
             )}
 
+            {/* Info Overlay Toggle Button */}
+            <button
+              onClick={() => setShowInfoOverlay(!showInfoOverlay)}
+              className="absolute bottom-4 left-4 z-20 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center transition-all"
+            >
+              <Eye className={`w-5 h-5 ${showInfoOverlay ? 'text-white' : 'text-white/50'}`} />
+            </button>
+
+            {/* Floating Info Overlay */}
+            {showInfoOverlay && (
+              <div className="absolute bottom-20 left-4 z-20 max-w-xs bg-black/60 backdrop-blur-sm rounded-lg p-3 text-white text-xs space-y-1">
+                <p className="font-medium text-sm truncate">{property.title}</p>
+                <p className="text-white/70">{property.district}, {property.city}</p>
+                <div className="flex items-center gap-3 text-white/80">
+                  <span>{property.room_count}</span>
+                  <span>•</span>
+                  <span>{property.square_meters} m²</span>
+                  <span>•</span>
+                  <span>Kat {property.floor}</span>
+                </div>
+                <p className="text-amber-400 font-semibold">
+                  {new Intl.NumberFormat('tr-TR').format(property.price)} {property.currency}
+                </p>
+                {currentRoom && (
+                  <p className="text-white/60 pt-1 border-t border-white/20">
+                    📍 {currentRoom.name || ROOM_NAMES[currentRoom.room_type]} 
+                    {currentRoom.square_meters && ` • ${currentRoom.square_meters} m²`}
+                  </p>
+                )}
+              </div>
+            )}
+
             {has360 ? (
               <div className="w-full h-full relative">
                 <div style={{ filter: sunFilterStyle.filter }} className="w-full h-full">
