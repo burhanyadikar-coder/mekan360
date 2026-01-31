@@ -576,6 +576,38 @@ async def send_email(to_email: str, subject: str, html_content: str):
 async def get_packages():
     return PACKAGES
 
+# Ücretsiz kullanıcıların 7 günden eski gayrimenkullerini sil
+@api_router.post("/cleanup/free-properties")
+async def cleanup_free_properties():
+    """7 günden eski ücretsiz kullanıcı gayrimenkullerini siler"""
+    try:
+        # Ücretsiz kullanıcıları bul
+        free_users = await db.users.find({"package": "free"}).to_list(1000)
+        deleted_count = 0
+        
+        for user in free_users:
+            user_id = user["id"]
+            cutoff_date = datetime.now(timezone.utc) - timedelta(days=7)
+            
+            # 7 günden eski gayrimenkulleri sil
+            result = await db.properties.delete_many({
+                "user_id": user_id,
+                "created_at": {"$lt": cutoff_date.isoformat()}
+            })
+            deleted_count += result.deleted_count
+            
+            # Kullanıcının property_count'unu güncelle
+            current_count = await db.properties.count_documents({"user_id": user_id})
+            await db.users.update_one(
+                {"id": user_id},
+                {"$set": {"property_count": current_count}}
+            )
+        
+        return {"deleted_count": deleted_count, "message": f"{deleted_count} eski gayrimenkul silindi"}
+    except Exception as e:
+        logging.error(f"Cleanup error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.post("/auth/register")
 async def register(user_data: UserCreate):
     existing = await db.users.find_one({"email": user_data.email})
