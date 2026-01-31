@@ -5,10 +5,10 @@ import {
   Sun, 
   MapPin, 
   BarChart3, 
-  Building2, 
   ArrowRight,
   ChevronRight
 } from 'lucide-react';
+import { LogoIcon } from '../components/Logo';
 
 const features = [
   {
