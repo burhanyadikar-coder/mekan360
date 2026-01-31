@@ -292,7 +292,7 @@ class UserCreate(BaseModel):
     last_name: str
     company_name: str
     phone: str
-    package: str  # starter, premium, ultra
+    package: str = "free"  # Varsayılan ücretsiz paket
     auto_payment: bool = False
 
 class UserLogin(BaseModel):
