@@ -38,7 +38,7 @@ export default function LoginPage() {
         <div className="w-full max-w-md space-y-8">
           <div>
             <Link to="/" className="flex items-center gap-3 mb-12" data-testid="login-logo">
-              <Building2 className="w-8 h-8 text-primary" />
+              <LogoIcon className="w-10 h-10" />
               <span className="font-heading text-xl font-semibold text-primary">mekan360</span>
             </Link>
             
