@@ -119,7 +119,7 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <div className="flex items-center justify-between h-16">
             <Link to="/dashboard" className="flex items-center gap-3" data-testid="dashboard-logo">
-              <Building2 className="w-7 h-7 text-primary" />
+              <LogoIcon className="w-9 h-9" />
               <span className="font-heading text-lg font-semibold text-primary">mekan360</span>
             </Link>
 
