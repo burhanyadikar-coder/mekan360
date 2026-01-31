@@ -1,9 +1,30 @@
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
-import { Building2, Check, ArrowRight, Crown, Camera, Video, Globe, Phone } from 'lucide-react';
+import { Check, ArrowRight, Crown, Camera, Video, Globe, Phone, Gift, Building2, Briefcase } from 'lucide-react';
+import { LogoIcon } from '../components/Logo';
 
 const PACKAGES = [
+  {
+    id: 'free',
+    name: 'Ücretsiz',
+    price: 0,
+    description: 'Denemek isteyenler için',
+    features: [
+      'Haftalık 1 gayrimenkul ekleme',
+      'Düz fotoğraf koleksiyonu',
+      'İnteraktif haritalama (kroki)',
+      '7 gün sonra otomatik silme'
+    ],
+    notIncluded: [
+      '360° panoramik görüntüleme',
+      'Çevre bilgisi ekleme',
+      'Şirket adı ekleme'
+    ],
+    highlight: false,
+    icon: Gift,
+    isFree: true
+  },
   {
     id: 'starter',
     name: 'Başlangıç',
@@ -47,15 +68,33 @@ const PACKAGES = [
     id: 'ultra',
     name: 'Ultra',
     price: 2000,
-    description: 'Kurumsal firmalar için sınırsız',
+    description: 'Büyük firmalar için',
     features: [
-      'Sınırsız gayrimenkul ekleme',
+      '100 gayrimenkul ekleme',
       'Tüm Premium özellikler dahil',
       'Öncelikli teknik destek',
       'Özel müşteri temsilcisi'
     ],
     notIncluded: [],
     highlight: false
+  },
+  {
+    id: 'corporate',
+    name: 'Kurumsal',
+    price: -1,
+    description: 'Kurumsal firmalar için özel',
+    features: [
+      'Sınırsız gayrimenkul ekleme',
+      'Tüm Ultra özellikler dahil',
+      'Özel entegrasyonlar',
+      'API erişimi',
+      '7/24 öncelikli destek',
+      'Özel eğitim ve danışmanlık'
+    ],
+    notIncluded: [],
+    highlight: false,
+    icon: Briefcase,
+    isContact: true
   }
 ];
 
@@ -67,7 +106,7 @@ export default function PricingPage() {
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <div className="flex items-center justify-between h-20">
             <Link to="/" className="flex items-center gap-3" data-testid="logo-link">
-              <Building2 className="w-8 h-8 text-primary" />
+              <LogoIcon className="w-10 h-10" />
               <span className="font-heading text-xl font-semibold text-primary">mekan360</span>
             </Link>
             
@@ -79,7 +118,7 @@ export default function PricingPage() {
               </Link>
               <Link to="/register">
                 <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6" data-testid="register-nav-btn">
-                  Üyelik Satın Al
+                  Kayıt Ol
                 </Button>
               </Link>
             </div>
@@ -94,7 +133,7 @@ export default function PricingPage() {
             Size Uygun <span className="font-semibold text-gold">Paketi</span> Seçin
           </h1>
           <p className="text-lg text-white/70 max-w-2xl mx-auto">
-            İhtiyacınıza göre paket seçin, hemen başlayın. Tüm paketler aylık abonelik şeklindedir.
+            Ücretsiz başlayın, ihtiyacınıza göre yükseltin. Tüm ücretli paketler aylık abonelik şeklindedir.
           </p>
         </div>
       </section>
@@ -102,13 +141,17 @@ export default function PricingPage() {
       {/* Pricing Cards */}
       <section className="py-16 lg:py-24 -mt-12">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
             {PACKAGES.map((pkg) => (
               <Card 
                 key={pkg.id}
                 className={`relative border-2 transition-all hover:-translate-y-2 hover:shadow-xl ${
                   pkg.highlight 
                     ? 'border-gold shadow-lg scale-105 z-10' 
+                    : pkg.isFree
+                    ? 'border-green-500/50'
+                    : pkg.isContact
+                    ? 'border-purple-500/50'
                     : 'border-border/40'
                 }`}
               >
@@ -118,63 +161,114 @@ export default function PricingPage() {
                     En Popüler
                   </div>
                 )}
+                {pkg.isFree && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-6 py-1.5 bg-green-500 text-white text-sm font-medium rounded-full flex items-center gap-1">
+                    <Gift className="w-4 h-4" />
+                    Ücretsiz
+                  </div>
+                )}
                 
-                <CardContent className="p-8">
-                  <div className="text-center mb-8">
-                    <h3 className="font-heading text-2xl font-semibold text-foreground mb-2">
+                <CardContent className="p-6">
+                  <div className="text-center mb-6">
+                    {pkg.icon && (
+                      <div className={`w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center ${
+                        pkg.isFree ? 'bg-green-100' : pkg.isContact ? 'bg-purple-100' : 'bg-primary/10'
+                      }`}>
+                        <pkg.icon className={`w-6 h-6 ${
+                          pkg.isFree ? 'text-green-600' : pkg.isContact ? 'text-purple-600' : 'text-primary'
+                        }`} />
+                      </div>
+                    )}
+                    <h3 className="font-heading text-xl font-semibold text-foreground mb-1">
                       {pkg.name}
                     </h3>
-                    <p className="text-muted-foreground text-sm mb-6">
+                    <p className="text-muted-foreground text-sm mb-4">
                       {pkg.description}
                     </p>
                     <div className="flex items-baseline justify-center gap-1">
-                      <span className={`font-heading text-5xl font-bold ${pkg.highlight ? 'text-gold' : 'text-primary'}`}>
-                        ₺{pkg.price.toLocaleString()}
-                      </span>
-                      <span className="text-muted-foreground">/ay</span>
+                      {pkg.isContact ? (
+                        <span className="font-heading text-lg font-semibold text-purple-600">
+                          Fiyat için iletişime geçin
+                        </span>
+                      ) : pkg.price === 0 ? (
+                        <span className="font-heading text-4xl font-bold text-green-600">
+                          Ücretsiz
+                        </span>
+                      ) : (
+                        <>
+                          <span className={`font-heading text-3xl font-bold ${pkg.highlight ? 'text-gold' : 'text-primary'}`}>
+                            ₺{pkg.price.toLocaleString()}
+                          </span>
+                          <span className="text-muted-foreground text-sm">/ay</span>
+                        </>
+                      )}
                     </div>
                   </div>
 
-                  <ul className="space-y-4 mb-8">
+                  <ul className="space-y-3 mb-6">
                     {pkg.features.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-3">
-                        <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                          pkg.highlight ? 'bg-gold/20' : 'bg-primary/10'
+                      <li key={i} className="flex items-start gap-2">
+                        <div className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                          pkg.highlight ? 'bg-gold/20' : pkg.isFree ? 'bg-green-100' : pkg.isContact ? 'bg-purple-100' : 'bg-primary/10'
                         }`}>
-                          <Check className={`w-3 h-3 ${pkg.highlight ? 'text-gold' : 'text-primary'}`} />
+                          <Check className={`w-2.5 h-2.5 ${
+                            pkg.highlight ? 'text-gold' : pkg.isFree ? 'text-green-600' : pkg.isContact ? 'text-purple-600' : 'text-primary'
+                          }`} />
                         </div>
-                        <span className="text-foreground">{feature}</span>
+                        <span className="text-sm text-foreground">{feature}</span>
                       </li>
                     ))}
                     {pkg.notIncluded.map((feature, i) => (
-                      <li key={`not-${i}`} className="flex items-start gap-3 opacity-50">
-                        <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 bg-muted">
+                      <li key={`not-${i}`} className="flex items-start gap-2 opacity-50">
+                        <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 bg-muted">
                           <span className="text-xs text-muted-foreground">✕</span>
                         </div>
-                        <span className="text-muted-foreground line-through">{feature}</span>
+                        <span className="text-sm text-muted-foreground line-through">{feature}</span>
                       </li>
                     ))}
                   </ul>
 
                   {pkg.note && (
-                    <p className="text-xs text-amber-600 mb-6 p-3 bg-amber-50 rounded-lg">
+                    <p className="text-xs text-amber-600 mb-4 p-2 bg-amber-50 rounded-lg">
                       {pkg.note}
                     </p>
                   )}
 
-                  <Link to={`/register?package=${pkg.id}`}>
-                    <Button 
-                      className={`w-full rounded-full h-12 ${
-                        pkg.highlight 
-                          ? 'bg-gold text-white hover:bg-gold-hover' 
-                          : 'bg-primary text-primary-foreground hover:bg-primary/90'
-                      }`}
-                      data-testid={`buy-${pkg.id}-btn`}
-                    >
-                      Üyelik Satın Al
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  </Link>
+                  {pkg.isContact ? (
+                    <a href="tel:05514780259">
+                      <Button 
+                        className="w-full rounded-full h-10 bg-purple-600 text-white hover:bg-purple-700"
+                        data-testid={`contact-${pkg.id}-btn`}
+                      >
+                        <Phone className="w-4 h-4 mr-2" />
+                        0551 478 02 59
+                      </Button>
+                    </a>
+                  ) : pkg.isFree ? (
+                    <Link to="/register?package=free">
+                      <Button 
+                        className="w-full rounded-full h-10 bg-green-600 text-white hover:bg-green-700"
+                        data-testid={`buy-${pkg.id}-btn`}
+                      >
+                        Ücretsiz Başla
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Link to={`/register?package=${pkg.id}`}>
+                      <Button 
+                        className={`w-full rounded-full h-10 ${
+                          pkg.highlight 
+                            ? 'bg-gold text-white hover:bg-gold-hover' 
+                            : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                        }`}
+                        data-testid={`buy-${pkg.id}-btn`}
+                      >
+                        Satın Al
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </Link>
+                  )}
                 </CardContent>
               </Card>
             ))}
@@ -268,6 +362,15 @@ export default function PricingPage() {
           <div className="space-y-6">
             <div className="bg-card p-6 rounded-lg border border-border/40">
               <h3 className="font-heading font-semibold text-foreground mb-2">
+                Ücretsiz paket nasıl çalışır?
+              </h3>
+              <p className="text-muted-foreground">
+                Ücretsiz pakette haftada 1 gayrimenkul ekleyebilirsiniz. Eklediğiniz gayrimenkul 7 gün sonra otomatik olarak silinir. Sistemi denemek için idealdir.
+              </p>
+            </div>
+
+            <div className="bg-card p-6 rounded-lg border border-border/40">
+              <h3 className="font-heading font-semibold text-foreground mb-2">
                 Aboneliğimi istediğim zaman iptal edebilir miyim?
               </h3>
               <p className="text-muted-foreground">
@@ -312,14 +415,22 @@ export default function PricingPage() {
             Hemen Başlamaya Hazır mısınız?
           </h2>
           <p className="text-lg text-white/70 mb-8">
-            Size uygun paketi seçin ve gayrimenkullerinizi premium seviyede tanıtmaya başlayın.
+            Ücretsiz kayıt olun ve hemen deneyin. İstediğiniz zaman paket yükseltebilirsiniz.
           </p>
-          <Link to="/register">
-            <Button size="lg" className="bg-gold text-white hover:bg-gold-hover rounded-full px-10 h-14 text-base font-medium">
-              Üyelik Satın Al
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link to="/register?package=free">
+              <Button size="lg" className="bg-green-600 text-white hover:bg-green-700 rounded-full px-10 h-14 text-base font-medium">
+                <Gift className="w-5 h-5 mr-2" />
+                Ücretsiz Başla
+              </Button>
+            </Link>
+            <Link to="/register">
+              <Button size="lg" className="bg-gold text-white hover:bg-gold-hover rounded-full px-10 h-14 text-base font-medium">
+                Paketleri İncele
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -328,7 +439,7 @@ export default function PricingPage() {
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-3">
-              <Building2 className="w-6 h-6 text-primary" />
+              <LogoIcon className="w-8 h-8" />
               <span className="font-heading text-lg font-semibold text-primary">mekan360</span>
             </div>
             <div className="flex items-center gap-6">
