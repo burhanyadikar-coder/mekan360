@@ -44,14 +44,15 @@ export default function LandingPage() {
     <div className="min-h-screen bg-background">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 glass">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="flex items-center justify-between h-20">
-            <Link to="/" className="flex items-center gap-3" data-testid="logo-link">
-              <LogoIcon className="w-10 h-10" />
-              <span className="font-heading text-xl font-semibold text-primary">mekan360</span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
+          <div className="flex items-center justify-between h-16 sm:h-20">
+            <Link to="/" className="flex items-center gap-2 sm:gap-3" data-testid="logo-link">
+              <LogoIcon className="w-8 h-8 sm:w-10 sm:h-10" />
+              <span className="font-heading text-base sm:text-xl font-semibold text-primary">mekan360</span>
             </Link>
             
-            <div className="flex items-center gap-4">
+            {/* Desktop Menu */}
+            <div className="hidden md:flex items-center gap-4">
               <Link to="/pricing">
                 <Button variant="ghost" className="text-primary hover:text-primary/80" data-testid="pricing-nav-btn">
                   Fiyatlar
@@ -65,6 +66,20 @@ export default function LandingPage() {
               <Link to="/register">
                 <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6" data-testid="register-nav-btn">
                   Üyelik Satın Al
+                </Button>
+              </Link>
+            </div>
+
+            {/* Mobile Menu */}
+            <div className="flex md:hidden items-center gap-2">
+              <Link to="/login">
+                <Button variant="ghost" size="sm" className="text-primary text-xs px-2">
+                  Giriş
+                </Button>
+              </Link>
+              <Link to="/register">
+                <Button size="sm" className="bg-primary text-primary-foreground rounded-full text-xs px-3">
+                  Kayıt
                 </Button>
               </Link>
             </div>
