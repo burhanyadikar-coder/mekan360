@@ -51,8 +51,8 @@ export default function LandingPage() {
               <span className="font-heading text-base sm:text-xl font-semibold text-primary">mekan360</span>
             </Link>
             
-            {/* Desktop Menu */}
-            <div className="hidden md:flex items-center gap-4">
+            {/* Desktop Menu - lg ve üzeri */}
+            <div className="hidden lg:flex items-center gap-4">
               <Link to="/pricing">
                 <Button variant="ghost" className="text-primary hover:text-primary/80" data-testid="pricing-nav-btn">
                   Fiyatlar
@@ -70,15 +70,20 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            {/* Mobile Menu */}
-            <div className="flex md:hidden items-center gap-2">
+            {/* Mobile/Tablet Menu - lg altı */}
+            <div className="flex lg:hidden items-center gap-1 sm:gap-2">
+              <Link to="/pricing">
+                <Button variant="ghost" size="sm" className="text-primary text-xs px-2">
+                  Fiyatlar
+                </Button>
+              </Link>
               <Link to="/login">
                 <Button variant="ghost" size="sm" className="text-primary text-xs px-2">
                   Giriş
                 </Button>
               </Link>
               <Link to="/register">
-                <Button size="sm" className="bg-primary text-primary-foreground rounded-full text-xs px-3">
+                <Button size="sm" className="bg-primary text-primary-foreground rounded-full text-xs px-2 sm:px-3">
                   Kayıt
                 </Button>
               </Link>
