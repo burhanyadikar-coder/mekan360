@@ -475,26 +475,26 @@ export default function PropertyFormPage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 glass border-b border-border">
-        <div className="max-w-5xl mx-auto px-6 lg:px-12">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-12">
+          <div className="flex items-center justify-between h-14 sm:h-16">
+            <div className="flex items-center gap-2 sm:gap-4">
               <Link to="/dashboard">
-                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary" data-testid="back-btn">
-                  <ArrowLeft className="w-5 h-5" />
+                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary w-8 h-8 sm:w-10 sm:h-10" data-testid="back-btn">
+                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Button>
               </Link>
-              <Link to="/dashboard" className="flex items-center gap-3">
-                <Building2 className="w-7 h-7 text-primary" />
-                <span className="font-heading text-lg font-semibold text-primary">mekan360</span>
+              <Link to="/dashboard" className="flex items-center gap-2 sm:gap-3">
+                <Building2 className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
+                <span className="font-heading text-base sm:text-lg font-semibold text-primary hidden sm:block">mekan360</span>
               </Link>
             </div>
 
             {/* Step indicator */}
-            <div className="hidden sm:flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               {[1, 2, 3, 4].map(s => (
                 <div
                   key={s}
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+                  className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium transition-colors ${
                     step >= s ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'
                   }`}
                 >
