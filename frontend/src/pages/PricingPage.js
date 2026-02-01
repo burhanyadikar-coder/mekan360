@@ -103,21 +103,21 @@ export default function PricingPage() {
     <div className="min-h-screen bg-background">
       {/* Navigation */}
       <nav className="sticky top-0 z-50 glass border-b border-border">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="flex items-center justify-between h-20">
-            <Link to="/" className="flex items-center gap-3" data-testid="logo-link">
-              <LogoIcon className="w-10 h-10" />
-              <span className="font-heading text-xl font-semibold text-primary">mekan360</span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
+          <div className="flex items-center justify-between h-16 sm:h-20">
+            <Link to="/" className="flex items-center gap-2 sm:gap-3" data-testid="logo-link">
+              <LogoIcon className="w-8 h-8 sm:w-10 sm:h-10" />
+              <span className="font-heading text-base sm:text-xl font-semibold text-primary">mekan360</span>
             </Link>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <Link to="/login">
-                <Button variant="ghost" className="text-primary hover:text-primary/80" data-testid="login-nav-btn">
+                <Button variant="ghost" className="text-primary hover:text-primary/80 text-xs sm:text-sm px-2 sm:px-4" data-testid="login-nav-btn">
                   Giriş Yap
                 </Button>
               </Link>
               <Link to="/register">
-                <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6" data-testid="register-nav-btn">
+                <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full text-xs sm:text-sm px-3 sm:px-6" data-testid="register-nav-btn">
                   Kayıt Ol
                 </Button>
               </Link>
@@ -127,21 +127,21 @@ export default function PricingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="py-16 lg:py-24 bg-primary">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h1 className="font-heading text-4xl md:text-5xl font-light text-white mb-4">
+      <section className="py-8 sm:py-16 lg:py-24 bg-primary">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+          <h1 className="font-heading text-2xl sm:text-4xl md:text-5xl font-light text-white mb-2 sm:mb-4">
             Size Uygun <span className="font-semibold text-gold">Paketi</span> Seçin
           </h1>
-          <p className="text-lg text-white/70 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-lg text-white/70 max-w-2xl mx-auto">
             Ücretsiz başlayın, ihtiyacınıza göre yükseltin. Tüm ücretli paketler aylık abonelik şeklindedir.
           </p>
         </div>
       </section>
 
       {/* Pricing Cards */}
-      <section className="py-16 lg:py-24 -mt-12">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+      <section className="py-8 sm:py-16 lg:py-24 -mt-6 sm:-mt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
             {PACKAGES.map((pkg) => (
               <Card 
                 key={pkg.id}
