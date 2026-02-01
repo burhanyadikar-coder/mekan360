@@ -169,31 +169,31 @@ export default function DashboardPage() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 lg:px-12 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8">
         {/* Welcome Section */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
           <div>
-            <h1 className="font-heading text-2xl md:text-3xl font-semibold text-primary">
+            <h1 className="font-heading text-xl sm:text-2xl md:text-3xl font-semibold text-primary">
               Hoş Geldiniz, {user?.first_name}
             </h1>
-            <p className="text-muted-foreground mt-1">Gayrimenkullerinizi yönetin ve performansı takip edin.</p>
+            <p className="text-muted-foreground mt-1 text-sm sm:text-base">Gayrimenkullerinizi yönetin ve performansı takip edin.</p>
           </div>
-          <div className="flex items-center gap-3">
-            <Badge variant="outline" className="text-gold border-gold/30">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Badge variant="outline" className="text-gold border-gold/30 text-xs sm:text-sm">
               <Crown className="w-3 h-3 mr-1" />
               {user?.package_name}
             </Badge>
             {canAddProperty ? (
               <Link to="/property/new">
-                <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full" data-testid="add-property-btn">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Yeni Gayrimenkul
+                <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full text-xs sm:text-sm" data-testid="add-property-btn">
+                  <Plus className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Yeni Gayrimenkul</span>
                 </Button>
               </Link>
             ) : (
-              <Button disabled className="rounded-full" title="Paket limitinize ulaştınız">
-                <Plus className="w-4 h-4 mr-2" />
-                Limit Dolu
+              <Button disabled size="sm" className="rounded-full text-xs sm:text-sm" title="Paket limitinize ulaştınız">
+                <Plus className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Limit Dolu</span>
               </Button>
             )}
           </div>
