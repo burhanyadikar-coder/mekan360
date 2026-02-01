@@ -145,9 +145,9 @@ export default function PricingPage() {
             {PACKAGES.map((pkg) => (
               <Card 
                 key={pkg.id}
-                className={`relative border-2 transition-all hover:-translate-y-2 hover:shadow-xl ${
+                className={`relative border-2 transition-all hover:-translate-y-1 sm:hover:-translate-y-2 hover:shadow-xl ${
                   pkg.highlight 
-                    ? 'border-gold shadow-lg scale-105 z-10' 
+                    ? 'border-gold shadow-lg sm:scale-105 z-10' 
                     : pkg.isFree
                     ? 'border-green-500/50'
                     : pkg.isContact
@@ -156,66 +156,66 @@ export default function PricingPage() {
                 }`}
               >
                 {pkg.highlight && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-6 py-1.5 bg-gold text-white text-sm font-medium rounded-full flex items-center gap-1">
-                    <Crown className="w-4 h-4" />
+                  <div className="absolute -top-3 sm:-top-4 left-1/2 -translate-x-1/2 px-3 sm:px-6 py-1 sm:py-1.5 bg-gold text-white text-xs sm:text-sm font-medium rounded-full flex items-center gap-1">
+                    <Crown className="w-3 h-3 sm:w-4 sm:h-4" />
                     En Popüler
                   </div>
                 )}
                 {pkg.isFree && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-6 py-1.5 bg-green-500 text-white text-sm font-medium rounded-full flex items-center gap-1">
-                    <Gift className="w-4 h-4" />
+                  <div className="absolute -top-3 sm:-top-4 left-1/2 -translate-x-1/2 px-3 sm:px-6 py-1 sm:py-1.5 bg-green-500 text-white text-xs sm:text-sm font-medium rounded-full flex items-center gap-1">
+                    <Gift className="w-3 h-3 sm:w-4 sm:h-4" />
                     Ücretsiz
                   </div>
                 )}
                 
-                <CardContent className="p-6">
-                  <div className="text-center mb-6">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="text-center mb-4 sm:mb-6">
                     {pkg.icon && (
-                      <div className={`w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center ${
+                      <div className={`w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 sm:mb-3 rounded-full flex items-center justify-center ${
                         pkg.isFree ? 'bg-green-100' : pkg.isContact ? 'bg-purple-100' : 'bg-primary/10'
                       }`}>
-                        <pkg.icon className={`w-6 h-6 ${
+                        <pkg.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${
                           pkg.isFree ? 'text-green-600' : pkg.isContact ? 'text-purple-600' : 'text-primary'
                         }`} />
                       </div>
                     )}
-                    <h3 className="font-heading text-xl font-semibold text-foreground mb-1">
+                    <h3 className="font-heading text-lg sm:text-xl font-semibold text-foreground mb-1">
                       {pkg.name}
                     </h3>
-                    <p className="text-muted-foreground text-sm mb-4">
+                    <p className="text-muted-foreground text-xs sm:text-sm mb-3 sm:mb-4">
                       {pkg.description}
                     </p>
                     <div className="flex items-baseline justify-center gap-1">
                       {pkg.isContact ? (
-                        <span className="font-heading text-lg font-semibold text-purple-600">
+                        <span className="font-heading text-sm sm:text-lg font-semibold text-purple-600">
                           Fiyat için iletişime geçin
                         </span>
                       ) : pkg.price === 0 ? (
-                        <span className="font-heading text-4xl font-bold text-green-600">
+                        <span className="font-heading text-2xl sm:text-4xl font-bold text-green-600">
                           Ücretsiz
                         </span>
                       ) : (
                         <>
-                          <span className={`font-heading text-3xl font-bold ${pkg.highlight ? 'text-gold' : 'text-primary'}`}>
+                          <span className={`font-heading text-2xl sm:text-3xl font-bold ${pkg.highlight ? 'text-gold' : 'text-primary'}`}>
                             ₺{pkg.price.toLocaleString()}
                           </span>
-                          <span className="text-muted-foreground text-sm">/ay</span>
+                          <span className="text-muted-foreground text-xs sm:text-sm">/ay</span>
                         </>
                       )}
                     </div>
                   </div>
 
-                  <ul className="space-y-3 mb-6">
+                  <ul className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
                     {pkg.features.map((feature, i) => (
                       <li key={i} className="flex items-start gap-2">
-                        <div className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                        <div className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
                           pkg.highlight ? 'bg-gold/20' : pkg.isFree ? 'bg-green-100' : pkg.isContact ? 'bg-purple-100' : 'bg-primary/10'
                         }`}>
-                          <Check className={`w-2.5 h-2.5 ${
+                          <Check className={`w-2 h-2 sm:w-2.5 sm:h-2.5 ${
                             pkg.highlight ? 'text-gold' : pkg.isFree ? 'text-green-600' : pkg.isContact ? 'text-purple-600' : 'text-primary'
                           }`} />
                         </div>
-                        <span className="text-sm text-foreground">{feature}</span>
+                        <span className="text-xs sm:text-sm text-foreground">{feature}</span>
                       </li>
                     ))}
                     {pkg.notIncluded.map((feature, i) => (
