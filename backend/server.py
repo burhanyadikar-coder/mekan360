@@ -18,6 +18,10 @@ import base64
 from io import BytesIO
 import httpx
 import hashlib
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import resend
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -225,10 +229,17 @@ JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_HOURS = 24
 ADMIN_SECRET = os.environ.get('ADMIN_SECRET', 'admin-secret-2024')
 
-# Resend Email (optional)
+# Email Configuration
 RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
 SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'onboarding@resend.dev')
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://mekan360-mobile.preview.emergentagent.com')
+
+# SMTP Settings (Alternative to Resend)
+SMTP_HOST = os.environ.get('SMTP_HOST')
+SMTP_PORT = int(os.environ.get('SMTP_PORT', 587))
+SMTP_USER = os.environ.get('SMTP_USER')
+SMTP_PASSWORD = os.environ.get('SMTP_PASSWORD')
+SMTP_TLS = os.environ.get('SMTP_TLS', 'true').lower() == 'true'
 
 app = FastAPI(title="HomeView Pro API")
 api_router = APIRouter(prefix="/api")
@@ -551,24 +562,51 @@ async def get_admin_user(credentials: HTTPAuthorizationCredentials = Depends(sec
 # ==================== EMAIL HELPER ====================
 
 async def send_email(to_email: str, subject: str, html_content: str):
+    # Try Resend if configured
+    if RESEND_API_KEY:
+        try:
+            resend.api_key = RESEND_API_KEY
+            params = {
+                "from": SENDER_EMAIL,
+                "to": [to_email],
+                "subject": subject,
+                "html": html_content
+            }
+            result = await asyncio.to_thread(resend.Emails.send, params)
+            return result
+        except Exception as e:
+            logging.error(f"Resend email send failed: {e}")
+            if not (SMTP_HOST and SMTP_USER and SMTP_PASSWORD):
+                raise HTTPException(status_code=500, detail="E-posta gönderilemedi")
+
+    # Try SMTP if configured
+    if SMTP_HOST and SMTP_USER and SMTP_PASSWORD:
+        try:
+            msg = MIMEMultipart()
+            msg['From'] = SENDER_EMAIL
+            msg['To'] = to_email
+            msg['Subject'] = subject
+            msg.attach(MIMEText(html_content, 'html'))
+
+            def send_smtp():
+                with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
+                    if SMTP_TLS:
+                        server.starttls()
+                    server.login(SMTP_USER, SMTP_PASSWORD)
+                    server.send_message(msg)
+
+            await asyncio.to_thread(send_smtp)
+            return {"id": "smtp-" + str(uuid.uuid4())}
+        except Exception as e:
+            logging.error(f"SMTP email send failed: {e}")
+            raise HTTPException(status_code=500, detail="E-posta gönderilemedi")
+
+    # Mock email for development if neither is configured
     if not RESEND_API_KEY:
         logging.info(f"[MOCK EMAIL] To: {to_email}, Subject: {subject}")
         return {"id": "mock-" + str(uuid.uuid4())}
     
-    try:
-        import resend
-        resend.api_key = RESEND_API_KEY
-        params = {
-            "from": SENDER_EMAIL,
-            "to": [to_email],
-            "subject": subject,
-            "html": html_content
-        }
-        result = await asyncio.to_thread(resend.Emails.send, params)
-        return result
-    except Exception as e:
-        logging.error(f"Email send failed: {e}")
-        raise HTTPException(status_code=500, detail="E-posta gönderilemedi")
+    raise HTTPException(status_code=500, detail="E-posta gönderimi yapılandırılamadı")
 
 # ==================== AUTH ROUTES ====================
 
