@@ -55,28 +55,28 @@ export default function AdminDashboardPage() {
     <div className="min-h-screen bg-emerald-950">
       {/* Header */}
       <header className="bg-emerald-900/50 border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
-              <Shield className="w-8 h-8 text-gold" />
-              <span className="font-heading text-xl font-semibold text-white">Admin Panel</span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
+          <div className="flex items-center justify-between h-14 sm:h-16">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Shield className="w-6 h-6 sm:w-8 sm:h-8 text-gold" />
+              <span className="font-heading text-base sm:text-xl font-semibold text-white">Admin Panel</span>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1 sm:gap-4">
               <Link to="/mekanadmin/users">
-                <Button variant="ghost" className="text-white/70 hover:text-white hover:bg-white/10" data-testid="users-nav">
-                  <Users className="w-4 h-4 mr-2" />
-                  Kullanıcılar
+                <Button variant="ghost" className="text-white/70 hover:text-white hover:bg-white/10 px-2 sm:px-4" data-testid="users-nav">
+                  <Users className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Kullanıcılar</span>
                 </Button>
               </Link>
               <Button 
                 variant="ghost" 
                 onClick={handleLogout}
-                className="text-white/70 hover:text-white hover:bg-white/10"
+                className="text-white/70 hover:text-white hover:bg-white/10 px-2 sm:px-4"
                 data-testid="admin-logout-btn"
               >
-                <LogOut className="w-4 h-4 mr-2" />
-                Çıkış
+                <LogOut className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Çıkış</span>
               </Button>
             </div>
           </div>
@@ -84,8 +84,8 @@ export default function AdminDashboardPage() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 lg:px-12 py-8">
-        <h1 className="font-heading text-2xl md:text-3xl font-semibold text-white mb-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8">
+        <h1 className="font-heading text-xl sm:text-2xl md:text-3xl font-semibold text-white mb-6 sm:mb-8">
           Dashboard
         </h1>
 
