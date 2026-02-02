@@ -417,7 +417,33 @@ export default function PropertyDetailPage() {
               </Card>
             </div>
 
-            {/* Regular Images Gallery */}
+            {/* Room Images Gallery - From rooms data */}
+            {property.rooms?.some(r => r.photos?.length > 0) && (
+              <div>
+                <h2 className="font-heading text-xl font-semibold text-primary mb-4">Oda Görselleri</h2>
+                {property.rooms.filter(r => r.photos?.length > 0).map((room, roomIdx) => (
+                  <div key={room.id} className="mb-6">
+                    <h3 className="text-sm font-medium text-muted-foreground mb-2">
+                      {room.name || ROOM_NAMES[room.room_type] || 'Oda'}
+                    </h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {room.photos.map((img, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setSelectedImage(img)}
+                          className="aspect-square rounded-sm overflow-hidden hover:opacity-90 transition-opacity"
+                          data-testid={`gallery-image-${roomIdx}-${index}`}
+                        >
+                          <img src={img} alt={`${room.name} - ${index + 1}`} className="w-full h-full object-cover" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Legacy: Regular Images Gallery */}
             {property.regular_images?.length > 0 && (
               <div>
                 <h2 className="font-heading text-xl font-semibold text-primary mb-4">Görseller</h2>
