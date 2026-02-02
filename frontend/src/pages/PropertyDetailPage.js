@@ -244,6 +244,19 @@ export default function PropertyDetailPage() {
         </div>
       </header>
 
+      {/* Cover Image Section - Show when no 360 or as fallback */}
+      {(property.cover_image || property.rooms?.[0]?.photos?.[0]) && property.view_type !== '360' && (
+        <section className="relative h-64 md:h-96">
+          <img 
+            src={property.cover_image || property.rooms[0].photos[0]} 
+            alt={property.title}
+            className="w-full h-full object-cover"
+            style={{ filter: getSunFilter() }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+        </section>
+      )}
+
       {/* 360 Panorama Section - Using rooms data */}
       {property.view_type === '360' && property.rooms?.some(r => r.panorama_photo) && (
         <section className="relative" data-testid="panorama-section">
