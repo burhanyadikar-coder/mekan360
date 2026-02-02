@@ -1274,6 +1274,50 @@ async def admin_update_user(user_id: str, data: AdminUserUpdate, admin: dict = D
         raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
     
     update_data = {k: v for k, v in data.model_dump().items() if v is not None}
+    
+    # Handle password update
+    if update_data.get("password"):
+        update_data["password"] = hash_password(update_data["password"])
+    
+    # Handle explicit subscription extension
+    if update_data.get("subscription_days"):
+        days = update_data.pop("subscription_days")
+        now = datetime.now(timezone.utc)
+        
+        # Calculate new end date
+        current_end_str = user.get("subscription_end")
+        if current_end_str:
+            try:
+                current_expiry = datetime.fromisoformat(current_end_str)
+                # If current subscription is still valid, add from there
+                if current_expiry > now:
+                    new_expiry = current_expiry + timedelta(days=days)
+                else:
+                    new_expiry = now + timedelta(days=days)
+            except ValueError:
+                new_expiry = now + timedelta(days=days)
+        else:
+            new_expiry = now + timedelta(days=days)
+        
+        update_data["subscription_end"] = new_expiry.isoformat()
+        update_data["subscription_status"] = "active"
+    
+    # Handle status change to active without explicit days (default 30 days if no end date set)
+    elif update_data.get("subscription_status") == "active":
+        current_end = user.get("subscription_end")
+        is_expired = False
+        if current_end:
+            try:
+                if datetime.fromisoformat(current_end) < datetime.now(timezone.utc):
+                    is_expired = True
+            except:
+                is_expired = True
+        
+        if not current_end or is_expired:
+            # Default to 30 days if activated from expired state without specific date
+            new_expiry = datetime.now(timezone.utc) + timedelta(days=30)
+            update_data["subscription_end"] = new_expiry.isoformat()
+
     update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
     
     await db.users.update_one({"id": user_id}, {"$set": update_data})
