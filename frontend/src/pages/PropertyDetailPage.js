@@ -69,6 +69,7 @@ export default function PropertyDetailPage() {
   const [sunTime, setSunTime] = useState([12]);
   const [viewStartTime, setViewStartTime] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedRoomIndex, setSelectedRoomIndex] = useState(0);
   const hasTrackedRef = useRef(false);
 
   useEffect(() => {
