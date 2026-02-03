@@ -729,6 +729,13 @@ export default function PropertyViewPage() {
                   />
                 </div>
                 
+                {/* Company Watermark */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10">
+                  <p className="text-white/20 text-2xl md:text-4xl font-bold tracking-wider select-none" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
+                    {property.company_name}
+                  </p>
+                </div>
+                
                 {/* Sun light overlay effect for 360 */}
                 {sunFilterStyle.isLit && (
                   <div 
@@ -741,12 +748,63 @@ export default function PropertyViewPage() {
                   />
                 )}
                 
-                <Badge className="absolute bottom-4 left-4 bg-blue-500 text-white">
-                  360° - Sürükleyerek Gez
+                {/* Room Navigation Arrows */}
+                {property.rooms?.length > 1 && (
+                  <>
+                    {/* Previous Room */}
+                    {currentRoomIndex > 0 && (
+                      <button
+                        onClick={() => handleRoomChange(currentRoomIndex - 1)}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 z-30 flex items-center gap-2 bg-black/60 hover:bg-black/80 text-white px-4 py-3 rounded-full transition-all group"
+                      >
+                        <ChevronLeft className="w-6 h-6" />
+                        <span className="hidden group-hover:inline text-sm font-medium max-w-32 truncate">
+                          {property.rooms[currentRoomIndex - 1]?.name || ROOM_NAMES[property.rooms[currentRoomIndex - 1]?.room_type]}
+                        </span>
+                      </button>
+                    )}
+                    
+                    {/* Next Room */}
+                    {currentRoomIndex < property.rooms.length - 1 && (
+                      <button
+                        onClick={() => handleRoomChange(currentRoomIndex + 1)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 z-30 flex items-center gap-2 bg-black/60 hover:bg-black/80 text-white px-4 py-3 rounded-full transition-all group"
+                      >
+                        <span className="hidden group-hover:inline text-sm font-medium max-w-32 truncate">
+                          {property.rooms[currentRoomIndex + 1]?.name || ROOM_NAMES[property.rooms[currentRoomIndex + 1]?.room_type]}
+                        </span>
+                        <ChevronRight className="w-6 h-6" />
+                      </button>
+                    )}
+                  </>
+                )}
+                
+                {/* Current Room Indicator */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 bg-black/60 backdrop-blur px-4 py-2 rounded-full">
+                  <div className="flex items-center gap-3">
+                    <span className="text-blue-400 text-lg">{ROOM_ICONS[currentRoom?.room_type] || '📍'}</span>
+                    <span className="text-white font-medium">
+                      {currentRoom?.name || ROOM_NAMES[currentRoom?.room_type]}
+                    </span>
+                    <span className="text-white/50 text-sm">
+                      {currentRoomIndex + 1} / {property.rooms?.length}
+                    </span>
+                  </div>
+                </div>
+                
+                <Badge className="absolute bottom-4 left-4 bg-blue-500 text-white z-20">
+                  360° Sanal Tur
                 </Badge>
               </div>
             ) : hasPhotos ? (
               <div className="relative w-full h-full overflow-hidden bg-black">
+                {/* Company Watermark for Photos */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10">
+                  <p className="text-white/20 text-2xl md:text-4xl font-bold tracking-wider select-none" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
+                    {property.company_name}
+                  </p>
+                </div>
+                
                 <img
                   src={currentRoom.photos[currentPhotoIndex]}
                   alt={`${currentRoom.name} - ${currentPhotoIndex + 1}`}
