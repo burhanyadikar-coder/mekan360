@@ -22,7 +22,8 @@ import {
   TreePine,
   Hospital,
   CircleDot,
-  Home
+  Home,
+  X
 } from 'lucide-react';
 import { Pannellum } from 'pannellum-react';
 import axios from 'axios';
