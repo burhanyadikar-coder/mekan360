@@ -275,6 +275,13 @@ export default function PropertyDetailPage() {
               showFullscreenCtrl={true}
             />
           </div>
+          
+          {/* Company Watermark */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10">
+            <p className="text-white/20 text-3xl md:text-5xl font-bold tracking-wider select-none" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
+              {property.company_name}
+            </p>
+          </div>
 
           {/* Room selector for 360 */}
           <div className="absolute bottom-4 left-4 right-4 flex flex-wrap gap-2 justify-center">
