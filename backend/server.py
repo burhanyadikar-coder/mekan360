@@ -820,15 +820,46 @@ async def forgot_password(request: PasswordResetRequest):
     
     reset_link = f"{FRONTEND_URL}/reset-password?token={reset_token}"
     html_content = f"""
-    <h2>Şifre Sıfırlama</h2>
-    <p>Merhaba {user['first_name']},</p>
-    <p>Şifrenizi sıfırlamak için aşağıdaki linke tıklayın:</p>
-    <a href="{reset_link}" style="background-color:#064E3B;color:white;padding:12px 24px;text-decoration:none;border-radius:25px;display:inline-block;">Şifremi Sıfırla</a>
-    <p>Bu link 1 saat geçerlidir.</p>
-    <p>Bu işlemi siz yapmadıysanız, bu e-postayı görmezden gelebilirsiniz.</p>
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="margin:0;padding:0;font-family:Arial,sans-serif;background-color:#f4f4f4;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;background-color:#ffffff;">
+            <tr>
+                <td style="background:linear-gradient(135deg,#064E3B 0%,#0D5C4D 100%);padding:30px;text-align:center;">
+                    <h1 style="color:#ffffff;margin:0;font-size:28px;">Mekan360</h1>
+                    <p style="color:#10B981;margin:10px 0 0;font-size:14px;">Premium Daire Tanıtım Sistemi</p>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding:40px 30px;">
+                    <h2 style="color:#064E3B;margin:0 0 20px;font-size:24px;">Şifre Sıfırlama</h2>
+                    <p style="color:#333333;font-size:16px;line-height:1.6;">Merhaba <strong>{user['first_name']}</strong>,</p>
+                    <p style="color:#666666;font-size:14px;line-height:1.6;">Hesabınız için şifre sıfırlama talebinde bulundunuz. Şifrenizi sıfırlamak için aşağıdaki butona tıklayın:</p>
+                    <div style="text-align:center;margin:30px 0;">
+                        <a href="{reset_link}" style="background:linear-gradient(135deg,#064E3B 0%,#0D5C4D 100%);color:#ffffff;padding:15px 40px;text-decoration:none;border-radius:30px;display:inline-block;font-weight:bold;font-size:16px;">Şifremi Sıfırla</a>
+                    </div>
+                    <p style="color:#999999;font-size:12px;line-height:1.6;">Bu link <strong>1 saat</strong> süreyle geçerlidir.</p>
+                    <p style="color:#999999;font-size:12px;line-height:1.6;">Bu işlemi siz yapmadıysanız, bu e-postayı görmezden gelebilirsiniz. Hesabınız güvende.</p>
+                </td>
+            </tr>
+            <tr>
+                <td style="background-color:#f8f8f8;padding:20px 30px;text-align:center;border-top:1px solid #eeeeee;">
+                    <p style="color:#999999;font-size:12px;margin:0;">© 2024 Mekan360. Tüm hakları saklıdır.</p>
+                    <p style="color:#999999;font-size:11px;margin:5px 0 0;">
+                        <a href="https://mekan360.com.tr" style="color:#064E3B;text-decoration:none;">mekan360.com.tr</a>
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </body>
+    </html>
     """
     
-    await send_email(request.email, "HomeView Pro - Şifre Sıfırlama", html_content)
+    await send_email(request.email, "Mekan360 - Şifre Sıfırlama", html_content)
     
     return {"message": "Şifre sıfırlama linki e-posta adresinize gönderildi."}
 
