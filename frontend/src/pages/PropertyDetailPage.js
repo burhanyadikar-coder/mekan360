@@ -451,10 +451,16 @@ export default function PropertyDetailPage() {
                         <button
                           key={index}
                           onClick={() => setSelectedImage(img)}
-                          className="aspect-square rounded-sm overflow-hidden hover:opacity-90 transition-opacity"
+                          className="aspect-square rounded-sm overflow-hidden hover:opacity-90 transition-opacity relative group"
                           data-testid={`gallery-image-${roomIdx}-${index}`}
                         >
                           <img src={img} alt={`${room.name} - ${index + 1}`} className="w-full h-full object-cover" />
+                          {/* Watermark */}
+                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <p className="text-white/30 text-sm md:text-base font-bold tracking-wider select-none" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>
+                              {property.company_name}
+                            </p>
+                          </div>
                         </button>
                       ))}
                     </div>
